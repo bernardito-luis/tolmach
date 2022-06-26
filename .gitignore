@@ -1,0 +1,8 @@
+.idea
+__pycache__
+*.py[co]
+/venv
+/vcmi-develop
+/vcmi-develop.zip
+*.h3m
+local_run.py
