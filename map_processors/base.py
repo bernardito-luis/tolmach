@@ -30,27 +30,27 @@ class MapParser:
 
     def process_uint16(self) -> int:
         value = self.bytes_to_int(
-            self.map_binary[self._cursor_position:self._cursor_position + 2]
+            self.map_binary[self._cursor_position : self._cursor_position + 2],
         )
         self._cursor_position += 2
         return value
 
     def process_uint32(self) -> int:
         value = self.bytes_to_int(
-            self.map_binary[self._cursor_position:self._cursor_position + 4]
+            self.map_binary[self._cursor_position : self._cursor_position + 4],
         )
         self._cursor_position += 4
         return value
 
     def process_n_bytes(self, n: int) -> bytes:
-        result = self.map_binary[self._cursor_position:self._cursor_position + n]
+        result = self.map_binary[self._cursor_position : self._cursor_position + n]
         self._cursor_position += n
         return result
 
     def base_process_string(self) -> str:
         string_len = self.process_uint32()
         string_end = self._cursor_position + string_len
-        string_from_map = self.map_binary[self._cursor_position:string_end].decode(self.encoding)
+        string_from_map = self.map_binary[self._cursor_position : string_end].decode(self.encoding)
         self._cursor_position = string_end
         return string_from_map
 
@@ -135,7 +135,7 @@ class MapParser:
 
             player_info['has_random_hero'] = self.process_uint8()
             player_info['main_custom_hero_id'] = self.process_uint8()
-            if player_info['main_custom_hero_id'] != 0xff:
+            if player_info['main_custom_hero_id'] != 0xFF:
                 player_info['main_custom_hero_portrait'] = self.process_uint8()
                 player_info['main_custom_hero_name'] = self.process_string()
 
@@ -145,10 +145,12 @@ class MapParser:
                 self.process_n_bytes(3)
                 player_info['heroes'] = []
                 for _ in range(player_info['hero_count']):
-                    player_info['heroes'].append({
-                        'hero_id': self.process_uint8(),
-                        'hero_name': self.process_string(),
-                    })
+                    player_info['heroes'].append(
+                        {
+                            'hero_id': self.process_uint8(),
+                            'hero_name': self.process_string(),
+                        }
+                    )
 
             self.data['players_attributes'].append(player_info)
 
@@ -156,7 +158,7 @@ class MapParser:
         self.data['victory'] = {}
 
         self.data['victory']['victory_condition'] = self.process_uint8()
-        if self.data['victory']['victory_condition'] == 0xff:
+        if self.data['victory']['victory_condition'] == 0xFF:
             pass
         else:
             self.data['victory']['standard_win_available'] = self.process_uint8()
@@ -201,7 +203,7 @@ class MapParser:
             self.data['loss']['loss_hero_coordinates'] = self.process_coordinates()
         elif self.data['loss']['special_loss_condition'] == 2:
             self.data['loss']['time_expires_in_days'] = self.process_uint16()
-        elif self.data['loss']['special_loss_condition'] == 0xff:
+        elif self.data['loss']['special_loss_condition'] == 0xFF:
             pass
         else:
             raise H3MapParserException('Unknown loss type')
@@ -236,12 +238,14 @@ class MapParser:
             configured_quantity = self.process_uint8()
             self.data['configured_heroes'] = []
             for _ in range(configured_quantity):
-                self.data['configured_heroes'].append({
-                    'id': self.process_uint8(),
-                    'portrait': self.process_uint8(),
-                    'name': self.process_string(),
-                    'players_access': self.process_uint8(),
-                })
+                self.data['configured_heroes'].append(
+                    {
+                        'id': self.process_uint8(),
+                        'portrait': self.process_uint8(),
+                        'name': self.process_string(),
+                        'players_access': self.process_uint8(),
+                    }
+                )
 
         self.process_n_bytes(31)  # unknown bytes
 
@@ -265,10 +269,12 @@ class MapParser:
         for _ in range(rumors_quantity):
             rumor_name = self.process_string()
             rumor_text = self.process_string()
-            self.data['rumors'].append({
-                'name': rumor_name,
-                'text': rumor_text,
-            })
+            self.data['rumors'].append(
+                {
+                    'name': rumor_name,
+                    'text': rumor_text,
+                }
+            )
 
     def read_predefined_heroes(self):
         if self.map_type <= MapType.AB:
@@ -287,10 +293,12 @@ class MapParser:
                 abilities_count = self.process_uint32()
                 hero['abilities'] = []
                 for _ in range(abilities_count):
-                    hero['abilities'].append({
-                        'id': self.process_uint8(),
-                        'level': self.process_uint8(),
-                    })
+                    hero['abilities'].append(
+                        {
+                            'id': self.process_uint8(),
+                            'level': self.process_uint8(),
+                        }
+                    )
             self.load_hero_artifacts(hero)
 
             if self.process_uint8():
@@ -338,10 +346,10 @@ class MapParser:
 
     def load_artifact_to_slot(self, to_hero: dict, slot: int):
         if self.map_type == MapType.ROE:
-            artifact_default = 0xff
+            artifact_default = 0xFF
             artifact_id = self.process_uint8()
         else:
-            artifact_default = 0xffff
+            artifact_default = 0xFFFF
             artifact_id = self.process_uint16()
 
         if artifact_id == artifact_default:
@@ -359,35 +367,39 @@ class MapParser:
                 break
             for x in range(self.data['header']['width']):
                 for y in range(self.data['header']['height']):
-                    self.data['terrain'][level].append({
-                        'terrain_type': self.process_uint8(),
-                        'view': self.process_uint8(),
-                        'river_type': self.process_uint8(),
-                        'river_flow': self.process_uint8(),
-                        'road_type': self.process_uint8(),
-                        'road_flow': self.process_uint8(),
-                        'flip_bits': self.process_uint8(),
-                    })
+                    self.data['terrain'][level].append(
+                        {
+                            'terrain_type': self.process_uint8(),
+                            'view': self.process_uint8(),
+                            'river_type': self.process_uint8(),
+                            'river_flow': self.process_uint8(),
+                            'road_type': self.process_uint8(),
+                            'road_flow': self.process_uint8(),
+                            'flip_bits': self.process_uint8(),
+                        }
+                    )
 
     def read_def_info(self):
         self.data['def'] = []
         def_quantity = self.process_uint32()
         for def_obj_number in range(def_quantity):
-            self.data['def'].append({
-                'sprite_filename': self.process_def_string(),
-                'unpassable_tiles': self.process_n_bytes(6),
-                'active_tiles': self.process_n_bytes(6),
-                'allowed_terrain': self.process_uint16(),
-                'terrain_group': self.process_uint16(),
-                'object_class': self.process_uint32(),  # id
-                'object_number': self.process_uint32(),  # sub_id
-                'object_group': self.process_uint8(),
-                'z_index': self.process_uint8(),
-                'unknown': self.process_n_bytes(16),
-            })
+            self.data['def'].append(
+                {
+                    'sprite_filename': self.process_def_string(),
+                    'unpassable_tiles': self.process_n_bytes(6),
+                    'active_tiles': self.process_n_bytes(6),
+                    'allowed_terrain': self.process_uint16(),
+                    'terrain_group': self.process_uint16(),
+                    'object_class': self.process_uint32(),  # id
+                    'object_number': self.process_uint32(),  # sub_id
+                    'object_group': self.process_uint8(),
+                    'z_index': self.process_uint8(),
+                    'unknown': self.process_n_bytes(16),
+                }
+            )
 
     def read_creature_set(self, quantity) -> list:
-        max_id = 0xff if self.map_type == MapType.ROE else 0xffff
+        max_id = 0xFF if self.map_type == MapType.ROE else 0xFFFF
         creatures = []
         for _ in range(quantity):
             if self.map_type >= MapType.AB:
@@ -416,9 +428,7 @@ class MapParser:
         return message, guards
 
     def read_resources(self):
-        return [
-            self.process_uint32() for _ in range(7)
-        ]
+        return [self.process_uint32() for _ in range(7)]
 
     def read_hero(self):
         hero = dict()
@@ -447,8 +457,7 @@ class MapParser:
         if has_abilities:
             abilities_quantity = self.process_uint32()
             hero['abilities'] = [
-                (self.process_uint8(), self.process_uint8())
-                for _ in range(abilities_quantity)
+                (self.process_uint8(), self.process_uint8()) for _ in range(abilities_quantity)
             ]
 
         has_creatures = self.process_uint8()
@@ -477,9 +486,7 @@ class MapParser:
         if self.map_type >= MapType.SOD:
             has_custom_primary_skills = self.process_uint8()
             if has_custom_primary_skills:
-                hero['custom_primary_skills'] = [
-                    self.process_uint8() for _ in range(4)
-                ]
+                hero['custom_primary_skills'] = [self.process_uint8() for _ in range(4)]
 
         self.process_n_bytes(16)
 
@@ -541,20 +548,24 @@ class MapParser:
         events_quantity = self.process_uint32()
         town['events'] = []
         for _ in range(events_quantity):
-            town['events'].append({
-                'name': self.process_string(),
-                'message': self.process_string(),
-                'resources': self.read_resources(),
-                'players': self.process_uint8(),
-                'human_affected': self.process_uint8() if self.map_type >= MapType.SOD else True,
-                'computer_affected': self.process_uint8(),
-                'first_occurrence': self.process_uint16(),
-                'next_occurrence': self.process_uint8(),
-                'unknown': self.process_n_bytes(17),
-                'new_buildings': self.process_n_bytes(6),
-                'new_creatures_quantities': [self.process_uint16() for _ in range(7)],
-                'unknown2': self.process_n_bytes(4),
-            })
+            town['events'].append(
+                {
+                    'name': self.process_string(),
+                    'message': self.process_string(),
+                    'resources': self.read_resources(),
+                    'players': self.process_uint8(),
+                    'human_affected': self.process_uint8()
+                    if self.map_type >= MapType.SOD
+                    else True,
+                    'computer_affected': self.process_uint8(),
+                    'first_occurrence': self.process_uint16(),
+                    'next_occurrence': self.process_uint8(),
+                    'unknown': self.process_n_bytes(17),
+                    'new_buildings': self.process_n_bytes(6),
+                    'new_creatures_quantities': [self.process_uint16() for _ in range(7)],
+                    'unknown2': self.process_n_bytes(4),
+                }
+            )
         if self.map_type >= MapType.SOD:
             town['alignment'] = self.process_uint8()
         self.process_n_bytes(3)
@@ -580,8 +591,7 @@ class MapParser:
                 primary_skills = [self.process_uint8() for _ in range(4)]
                 abilities_quantity = self.process_uint8()
                 abilities = [
-                    (self.process_uint8(), self.process_uint8())
-                    for _ in range(abilities_quantity)
+                    (self.process_uint8(), self.process_uint8()) for _ in range(abilities_quantity)
                 ]
                 artifacts_quantity = self.process_uint8()
                 if self.map_type == MapType.ROE:
@@ -623,7 +633,9 @@ class MapParser:
                 self.process_n_bytes(4)
 
             elif object_class in (
-                ObjectType.HERO.value, ObjectType.RANDOM_HERO.value, ObjectType.PRISON.value,
+                ObjectType.HERO.value,
+                ObjectType.RANDOM_HERO.value,
+                ObjectType.PRISON.value,
             ):
                 map_object = self.read_hero()
             elif object_class in (
@@ -781,14 +793,17 @@ class MapParser:
                 map_object['primary_skills'] = [self.process_uint8() for _ in range(4)]
                 abilities_quantity = self.process_uint8()
                 map_object['abilities'] = [
-                    (self.process_uint8(), self.process_uint8())
-                    for _ in range(abilities_quantity)
+                    (self.process_uint8(), self.process_uint8()) for _ in range(abilities_quantity)
                 ]
                 artifacts_quantity = self.process_uint8()
                 if self.map_type == MapType.ROE:
-                    map_object['artifacts'] = [self.process_uint8() for _ in range(artifacts_quantity)]
+                    map_object['artifacts'] = [
+                        self.process_uint8() for _ in range(artifacts_quantity)
+                    ]
                 else:
-                    map_object['artifacts'] = [self.process_uint16() for _ in range(artifacts_quantity)]
+                    map_object['artifacts'] = [
+                        self.process_uint16() for _ in range(artifacts_quantity)
+                    ]
                 spells_quantity = self.process_uint8()
                 map_object['spells'] = [self.process_uint8() for _ in range(spells_quantity)]
                 creatures_quantity = self.process_uint8()
@@ -826,35 +841,42 @@ class MapParser:
             elif object_class == ObjectType.HERO_PLACEHOLDER.value:
                 map_object['owner'] = self.process_uint8()
                 map_object['hero_id'] = self.process_uint8()
-                if map_object['hero_id'] == 0xff:
+                if map_object['hero_id'] == 0xFF:
                     map_object['power'] = self.process_uint8()
 
             elif object_class == ObjectType.LIGHTHOUSE.value:
                 map_object['owner'] = self.process_uint32()
 
-            self.data['objects'].append({
-                'type': (
-                    ObjectType(object_class).name if object_class in ObjectType
-                    else object_class
-                ),
-                'coordinates': object_coordinates,
-                'object': map_object,
-            })
+            self.data['objects'].append(
+                {
+                    'type': (
+                        ObjectType(object_class).name
+                        if object_class in ObjectType
+                        else object_class
+                    ),
+                    'coordinates': object_coordinates,
+                    'object': map_object,
+                }
+            )
 
     def read_events(self):
         self.data['events'] = []
         events_quantity = self.process_uint32()
         for _ in range(events_quantity):
-            self.data['events'].append({
-                'name': self.process_string(),
-                'message': self.process_string(),
-                'resources': self.read_resources(),
-                'players': self.process_uint8(),
-                'human_affected': self.process_uint8() if self.map_type >= MapType.SOD else True,
-                'computer_affected': self.process_uint8(),
-                'first_occurrence': self.process_uint16(),
-                'next_occurrence': self.process_uint8(),
-            })
+            self.data['events'].append(
+                {
+                    'name': self.process_string(),
+                    'message': self.process_string(),
+                    'resources': self.read_resources(),
+                    'players': self.process_uint8(),
+                    'human_affected': self.process_uint8()
+                    if self.map_type >= MapType.SOD
+                    else True,
+                    'computer_affected': self.process_uint8(),
+                    'first_occurrence': self.process_uint16(),
+                    'next_occurrence': self.process_uint8(),
+                }
+            )
             self.process_n_bytes(17)
 
     def get_structured_data(self) -> dict:
@@ -877,4 +899,3 @@ class MapParser:
         self.read_events()
 
         return self.data
-

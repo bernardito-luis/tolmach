@@ -22,29 +22,29 @@ class MapParserWriter(MapParser):
 
     def process_uint16(self) -> int:
         value = self.bytes_to_int(
-            self.map_binary[self._cursor_position:self._cursor_position + 2]
+            self.map_binary[self._cursor_position : self._cursor_position + 2]
         )
         self.output_data_binary.append(
-            self.map_binary[self._cursor_position:self._cursor_position + 2]
+            self.map_binary[self._cursor_position : self._cursor_position + 2]
         )
         self._cursor_position += 2
         return value
 
     def process_uint32(self, write_same=True) -> int:
         value = self.bytes_to_int(
-            self.map_binary[self._cursor_position:self._cursor_position + 4]
+            self.map_binary[self._cursor_position : self._cursor_position + 4]
         )
         if write_same:
             self.output_data_binary.append(
-                self.map_binary[self._cursor_position:self._cursor_position + 4]
+                self.map_binary[self._cursor_position : self._cursor_position + 4]
             )
         self._cursor_position += 4
         return value
 
     def process_n_bytes(self, n: int) -> bytes:
-        result = self.map_binary[self._cursor_position:self._cursor_position + n]
+        result = self.map_binary[self._cursor_position : self._cursor_position + n]
         self.output_data_binary.append(
-            self.map_binary[self._cursor_position:self._cursor_position + n]
+            self.map_binary[self._cursor_position : self._cursor_position + n]
         )
         self._cursor_position += n
         return result
@@ -52,10 +52,8 @@ class MapParserWriter(MapParser):
     def base_process_string(self) -> str:
         string_len = self.process_uint32()
         string_end = self._cursor_position + string_len
-        string_from_map = self.map_binary[self._cursor_position:string_end].decode(self.encoding)
-        self.output_data_binary.append(
-            self.map_binary[self._cursor_position:string_end]
-        )
+        string_from_map = self.map_binary[self._cursor_position : string_end].decode(self.encoding)
+        self.output_data_binary.append(self.map_binary[self._cursor_position : string_end])
         self._cursor_position = string_end
         return string_from_map
 
@@ -89,9 +87,7 @@ class MapTranslationFileGenerator(MapParser):
             self.get_structured_data()
 
         with open(self.output_filename, 'w', encoding=self.encoding) as f:
-            f.write(
-                json.dumps(self.strings_to_translate, indent=4, ensure_ascii=False)
-            )
+            f.write(json.dumps(self.strings_to_translate, indent=4, ensure_ascii=False))
 
 
 class MapSimpleTranslator(MapParserWriter):
@@ -118,7 +114,7 @@ class MapSimpleTranslator(MapParserWriter):
     def process_string(self) -> str:
         string_len = self.process_uint32(write_same=False)
         string_end = self._cursor_position + string_len
-        string_from_map = self.map_binary[self._cursor_position:string_end].decode(self.encoding)
+        string_from_map = self.map_binary[self._cursor_position : string_end].decode(self.encoding)
         self._cursor_position = string_end
 
         if self.translations.get(string_from_map):
