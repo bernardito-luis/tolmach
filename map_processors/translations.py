@@ -3,6 +3,7 @@ import json
 from map_processors.base import MapParser
 
 
+# TODO: remove?
 class MapParserWriter(MapParser):
     def __init__(
         self, filename: str, output_filename: str = None, encoding='cp1251', *args, **kwargs
@@ -69,11 +70,13 @@ class MapParserWriter(MapParser):
 
 class MapTranslationFileGenerator(MapParser):
     def __init__(
-        self, filename: str, output_filename: str = None, encoding='cp1251', *args, **kwargs
+        self, filename: str, output_filename: str = '', encoding='cp1251', *args, **kwargs
     ) -> None:
-        super().__init__(filename)
+        super().__init__(filename, encoding=encoding, *args, **kwargs)
         self.strings_to_translate = {}
-        if not output_filename:
+        if output_filename:
+            self.output_filename = output_filename
+        else:
             output_filename, ext = filename.rsplit('.', maxsplit=1)
             self.output_filename = f'{output_filename}_translations.json'
 
@@ -100,7 +103,7 @@ class MapSimpleTranslator(MapParserWriter):
         *args,
         **kwargs,
     ) -> None:
-        super().__init__(filename, *args, **kwargs)
+        super().__init__(filename, encoding=encoding, *args, **kwargs)
         if not translations_filename:
             translations_filename, ext = filename.rsplit('.', maxsplit=1)
             self.translations_filename = f'{translations_filename}_translations.json'

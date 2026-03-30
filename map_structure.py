@@ -1,0 +1,590 @@
+# ruff: noqa
+
+STRUCTURE = {
+    'header': {
+        'map_type': int,
+        'are_any_players': bool,
+        'height': int,
+        'width': int,
+        'has_underground': bool,
+        'map_name': str,
+        'map_description': str,
+        'map_difficulty': int,
+        'hero_level_limit': int,
+    },
+    'players_attributes': [
+        {
+            'can_human_play': bool,
+            'can_computer_play': bool,
+            'computer_playstyle': int,
+            'are_factions_configured': int,
+            'allowed_factions': int,
+            'is_faction_random': int,
+            'generate_hero_at_main_town': int,
+            'generate_hero': int,
+            'town_coordinates': (int, int, int),
+            'has_random_hero': int,
+            'main_custom_hero_id': int,
+            'main_custom_hero_portrait': int,
+            'main_custom_hero_name': str,
+            'hero_count': int,
+            'heroes': [
+                {
+                    'hero_id': int,
+                    'hero_name': str,
+                },
+                ...,
+            ],
+        },
+        ...,
+    ],
+    'victory': {
+        'special_victory_condition': int,
+        'standard_win_available': int,
+        'applies_to_computer': int,
+        'acquire_artifact_code': int,
+        'unit_code': int,
+        'unit_quantity': int,
+        'resource_code': int,
+        'resource_quantity': int,
+        'upgrade_town_coordinates': (int, int, int),
+        'hall_level': int,
+        'castle_level': int,
+        'build_grail_town_coordinates': (int, int, int),
+        'hero_coordinates': (int, int, int),
+        'capture_town_coordinates': (int, int, int),
+        'creature_coordinates': (int, int, int),
+        'bring_artifact_code': int,
+        'bring_artifact_town_coordinates': (int, int, int),
+    },
+    'loss': {
+        'special_loss_condition': int,
+        'loss_town_coordinates': (int, int, int),
+        'loss_hero_coordinates': (int, int, int),
+        'time_expires_in_days': int,
+    },
+    'teams': {
+        'quantity': int,
+        'red_team_number': int,
+        'blue_team_number': int,
+        'brown_team_number': int,
+        'green_team_number': int,
+        'orange_team_number': int,
+        'purple_team_number': int,
+        'teal_team_number': int,
+        'pink_team_number': int,
+    },
+    'allowed_heroes_info': str,  # TODO: move to separate structure
+    'placeholder_heroes': [int, ...],  # TODO: does it means something?
+    'configured_heroes': [
+        {
+            'id': int,
+            'portrait': int,
+            'name': str,
+            'players_access': int,
+        },
+    ],
+    'artifacts': str,  # TODO: blocked artifacts?
+    'allowed_spells_bytes': str,
+    'allowed_hero_abilities_bytes': str,
+    # TODO: need this separate field? (some oter fields don't exist)
+    'rumors_quantity': int,  # unite into rumors struct
+    'rumors': [
+        {
+            'name': str,
+            'text': str,
+        },
+        ...,
+    ],
+    'predefined_heroes': {
+        int: {
+            'experience': int,
+            'abilities': [
+                {
+                    'id': int,
+                    'level': int,
+                },
+                ...,
+            ],
+            'artifacts': {
+                int: int,
+                # ...
+            },
+            'biography': str,
+            'sex': int,
+            'spells': bytes,
+            'primary_skills': {
+                'attack': int,
+                'defence': int,
+                'power': int,
+                'knowledge': int,
+            },
+        },
+        # ...
+    },
+    'terrain': {
+        'surface': [
+            {
+                'terrain_type': int,
+                'view': int,
+                'river_type': int,
+                'river_flow': int,
+                'road_type': int,
+                'road_flow': int,
+                'flip_bits': int,
+            },
+            ...,
+        ],
+        'underground': [
+            {
+                'terrain_type': int,
+                'view': int,
+                'river_type': int,
+                'river_flow': int,
+                'road_type': int,
+                'road_flow': int,
+                'flip_bits': int,
+            },
+            ...,
+        ],
+    },
+    'def': [
+        {
+            'sprite_filename': str,
+            'unpassable_tiles': bytes,
+            'active_tiles': bytes,
+            'allowed_terrain': int,
+            'terrain_group': int,
+            'object_class': int,
+            'object_number': int,
+            'object_group': int,
+            'z_index': int,
+            'unknown': bytes,
+        },
+        ...,
+    ],
+    'objects': [
+        {
+            'object_class': str,
+            'object_subclass': int,
+            'coordinates': (int, int, int),
+            'object': {
+                'message': str,
+                'guards': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'experience': int,
+                'mana_diff': int,
+                'morale': int,
+                'luck': int,
+                'resources': {
+                    'wood': int,
+                    'mercury': int,
+                    'ore': int,
+                    'sulfur': int,
+                    'crystal': int,
+                    'gems': int,
+                    'gold': int,
+                },
+                'primary_skills': {
+                    'attack': int,
+                    'defence': int,
+                    'power': int,
+                    'knowledge': int,
+                },
+                'abilities': [
+                    {
+                        'id': int,
+                        'level': int,
+                    },
+                    ...,
+                ],
+                'artifacts': [int, ...],
+                'spells': [int, ...],
+                'creatures': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'available_for_color': int,
+                'can_computer_activate': bool,
+                'remove_after_visit': bool,
+            },
+            'sign': {
+                'message': str,1
+            },
+            'ocean_bottle': {
+                'message': str,
+            },
+            # TODO: another type
+            'hero': {
+                'id': int,
+                'owner': int,
+                'hero_sub_id': int,
+                'name': str,
+                'experience': int,
+                'portrait': int,
+                'abilities': [
+                    {
+                        'id': int,
+                        'level': int,
+                    },
+                    ...,
+                ],
+                'creatures': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'formation': int,
+                'artifacts': {
+                    int: int,
+                    # ...
+                },
+                'patrol_radius': int,
+                'biography': str,
+                'sex': int,
+                'custom_spells': str,
+                'custom_primary_skills': {
+                    'attack': int,
+                    'defence': int,
+                    'power': int,
+                    'knowledge': int,
+                },
+            },
+            'monster': {
+                'id': int,
+                'quantity': int,
+                'character': int,
+                'message': str,
+                'resources': {
+                    'wood': int,
+                    'mercury': int,
+                    'ore': int,
+                    'sulfur': int,
+                    'crystal': int,
+                    'gems': int,
+                    'gold': int,
+                },
+                'artifact_id': int,
+                'mood': int,
+                'not_growing': bool,
+            },
+            'seer_hut': {
+                'mission_type': str,
+                'level': int,
+                'hero_object_id': str,
+                'monster_object_id': str,
+                'primary_stats': dict,
+                'artifacts': list[int],
+                'creatures': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'resources': {
+                    'wood': int,
+                    'mercury': int,
+                    'ore': int,
+                    'sulfur': int,
+                    'crystal': int,
+                    'gems': int,
+                    'gold': int,
+                },
+                'color': str,
+                'limit': int,
+                'first_visit_text': str,
+                'next_visit_text': str,
+                'completed_text': str,
+                'reward': {
+                    'type': str,
+                    'experience': int,
+                    'mana_points': int,
+                    'morale': int,
+                    'luck': int,
+                    'resource_type': str,
+                    'resource_quantity': str,
+                    'skill_id': int,
+                    'skill_increase': int,
+                    'artifact_id': int,
+                    'spell_id': int,
+                    'creature_id': int,
+                    'creature_quantity': int,
+                },
+            },
+            'witch_hut': {
+                'ability_bits': str,
+            },
+            'scholar': {
+                'bonus_type': int,
+                'bonus_id': int,
+            },
+            'garisson': {
+                'type': str,  # TODO: either class type?
+                'owner': int,
+                'creatures': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'is_removable': int,
+            },
+            'random_artifact': {
+                'level': str,
+                'message': str,
+                'guards': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+            },
+            'artifact': {
+                'artifact_id': str,
+                'message': str,
+                'guards': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+            },
+            'spell_scroll': {
+                'spell_id': str,
+                'message': str,
+                'guards': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+            },
+            'resource': {
+                'type': str,
+                'message': str,
+                'guards': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'quantity': int,
+            },
+            'random_resource': {
+                'message': str,
+                'guards': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'quantity': int,
+            },
+            'town': {
+                'id': int,
+                'owner': int,
+                'name': str,
+                'garrison': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'formation': int,  # spread / grouped
+                'built_buildings': str,
+                'forbidden_buildings': str,
+                'has_fort': bool,
+                'obligatory_spells': str,
+                'possible_spells': str,
+                'events': [
+                    {
+                        'name': str,
+                        'message': str,
+                        'resources': {
+                            'wood': int,
+                            'mercury': int,
+                            'ore': int,
+                            'sulfur': int,
+                            'crystal': int,
+                            'gems': int,
+                            'gold': int,
+                        },
+                        'players': str,
+                        'human_affected': bool,
+                        'computer_affected': bool,
+                        'first_occurrence': int,
+                        'next_occurrence': int,
+                        'unknown': str,
+                        'new_buildings': str,
+                        'new_creatures_quantities': [int, ...],
+                        'unknown2': str,
+                    },
+                    ...,
+                ],
+                'alignment': int,
+            },
+            'mine': {
+                'owner': str,
+            },
+            'abandoned_mine': {
+                'possible_resources': str,
+            },
+            'creature_generator': {
+                'owner': str,
+            },
+            'shrine_of_magic': {
+                'spell_id': int,
+            },
+            'pandora_box': {
+                'message': str,
+                'guards': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'experience': int,
+                'mana_diff': int,
+                'morale_diff': int,
+                'luck_diff': int,
+                'resources': {
+                    'wood': int,
+                    'mercury': int,
+                    'ore': int,
+                    'sulfur': int,
+                    'crystal': int,
+                    'gems': int,
+                    'gold': int,
+                },
+                'primary_skills': {
+                    'attack': int,
+                    'defence': int,
+                    'power': int,
+                    'knowledge': int,
+                },
+                'abilities': [
+                    {
+                        'id': int,
+                        'level': int,
+                    },
+                    ...,
+                ],
+                'artifacts': [int, ...],
+                'spells': [int, ...],
+                'creatures': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+            },
+            'grail': {
+                'radius': int,
+            },
+            'random_dwelling': {
+                'owner': str,
+                'castle_id': int,
+                'castles': tuple[int, int],
+                'min_lvl': int,
+                'max_lvl': int,
+            },
+            'random_dwelling_lvl': {
+                'owner': str,
+                'castle_id': int,
+                'castles': tuple[int, int],
+            },
+            'random_dwelling_faction': {
+                'owner': str,
+                'min_lvl': int,
+                'max_lvl': int,
+            },
+            'quest_guard': {
+                'mission_type': str,
+                'level': int,
+                'hero_object_id': str,
+                'monster_object_id': str,
+                'primary_stats': {
+                    'attack': int,
+                    'defence': int,
+                    'power': int,
+                    'knowledge': int,
+                },
+                'artifacts': list[int],
+                'creatures': [
+                    {
+                        'id': int,
+                        'quantity': int,
+                    },
+                    ...,
+                ],
+                'resources': {
+                    'wood': int,
+                    'mercury': int,
+                    'ore': int,
+                    'sulfur': int,
+                    'crystal': int,
+                    'gems': int,
+                    'gold': int,
+                },
+                'color': str,
+                'limit': int,
+                'first_visit_text': str,
+                'next_visit_text': str,
+                'completed_text': str,
+            },
+            'shipyard': {
+                'owner': str,
+            },
+            'lighthouse': {
+                'owner': str,
+            },
+            'hero_placeholder': {
+                'owner': str,
+                'hero_id': int,
+                'power': int,
+            },
+        },
+    ],
+    'events': [
+        {
+            'name': str,
+            'message': str,
+            'resources': {
+                'wood': int,
+                'mercury': int,
+                'ore': int,
+                'sulfur': int,
+                'crystal': int,
+                'gems': int,
+                'gold': int,
+            },
+            'players': str,
+            'human_affected': bool,
+            'computer_affected': bool,
+            'first_occurrence': int,
+            'next_occurrence': int,
+            'unknown': str,
+        },
+        ...,
+    ],
+}

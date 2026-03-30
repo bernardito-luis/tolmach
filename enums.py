@@ -5,9 +5,14 @@ class MapType(enum.IntEnum):
     ROE = 14
     AB = 21
     SOD = 28
+    # not processed
+    # CHR = 29
+    # HOTA = 32
+    # WOG = 51
+    # VCMI = 100
 
 
-class EnumWithContainsCheck(enum.EnumMeta):
+class EnumWithContainsCheck(enum.EnumMeta):  # TODO: delete and just inherit from IntEnum
     def __contains__(cls, item):
         return item in cls._value2member_map_
 
@@ -18,7 +23,7 @@ class ObjectType(enum.Enum, metaclass=EnumWithContainsCheck):
     ANCHOR_POINT = 3
     ARENA = 4
     ARTIFACT = 5
-    PANDORAS_BOX = 6
+    PANDORA_BOX = 6
     BLACK_MARKET = 7
     BOAT = 8
     BORDERGUARD = 9
@@ -45,7 +50,7 @@ class ObjectType(enum.Enum, metaclass=EnumWithContainsCheck):
     FOUNTAIN_OF_FORTUNE = 30
     FOUNTAIN_OF_YOUTH = 31
     GARDEN_OF_REVELATION = 32
-    GARRISON = 33
+    GARRISON_HORIZONTAL = 33
     HERO = 34
     HILL_FORT = 35
     GRAIL = 36
@@ -136,7 +141,7 @@ class ObjectType(enum.Enum, metaclass=EnumWithContainsCheck):
     RANDOM_DWELLING = 216
     RANDOM_DWELLING_LVL = 217  # subtype = creature level
     RANDOM_DWELLING_FACTION = 218  # subtype = faction
-    GARRISON2 = 219
+    GARRISON_VERTICAL = 219  # vertical  # TODO: rename
     ABANDONED_MINE = 220
     TRADING_POST_SNOW = 221
     CLOVER_FIELD = 222
@@ -163,3 +168,38 @@ class RewardType(enum.IntEnum):
     ARTIFACT = 8
     SPELL = 9
     CREATURE = 10
+
+
+class QuestType(enum.Enum):
+    EMPTY = 0
+    ACHIEVE_LEVEL = 1
+    ACHIEVE_PRIMARY_SKILL_LEVEL = 2
+    DEFEAT_HERO = 3
+    DEFEAT_MONSTER = 4
+    BRING_ARTEFACT = 5
+    BRING_CREATURES = 6
+    BRING_RESOURCES = 7
+    BE_SPECIFIC_HERO = 8
+    BE_SPECIFIC_COLOR = 9
+
+
+class ColorEnum(enum.Enum):
+    RED = 0
+    BLUE = 1
+    BROWN = 2
+    GREEN = 3
+    ORANGE = 4
+    PURPLE = 5
+    TEAL = 6
+    PINK = 7
+    NEUTRAL = 255
+
+
+class ResourceType(enum.Enum):
+    WOOD = 0
+    MERCURY = 1
+    ORE = 2
+    SULFUR = 3
+    CRYSTAL = 4
+    GEMS = 5
+    GOLD = 6
