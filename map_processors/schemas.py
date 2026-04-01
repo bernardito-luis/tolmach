@@ -2,10 +2,6 @@ from typing import Annotated, Dict, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, conint
 
-# TODO: move to custom types
-TextField = str
-AnotherTextField = str
-
 UPPER_LIMIT_1_BYTE = 255
 UPPER_LIMIT_2_BYTES = 65535
 UPPER_LIMIT_4_BYTES = 4294967295
@@ -15,6 +11,12 @@ UPPER_LIMIT_SIGNED_4_BYTES = 2147483647
 LOWER_LIMIT_SIGNED_1_BYTE = -128
 LOWER_LIMIT_SIGNED_2_BYTES = -32768
 LOWER_LIMIT_SIGNED_4_BYTES = -2147483648
+
+
+class Translatable:
+    """Marker for translatable string fields."""
+
+    pass
 
 
 class Empty(BaseModel):
@@ -70,8 +72,8 @@ class Header(BaseModel):
     height: int
     width: int
     has_underground: bool
-    map_name: str
-    map_description: Annotated[str, Tag('translatable')]
+    map_name: Annotated[str, Translatable()]
+    map_description: Annotated[str, Translatable()]
     map_difficulty: int
     hero_level_limit: Optional[int] = None
 
@@ -95,7 +97,7 @@ class PlayerAttributes(BaseModel):
     has_random_hero: Optional[int] = None
     main_custom_hero_id: Optional[int] = None
     main_custom_hero_portrait: Optional[int] = None
-    main_custom_hero_name: Optional[str] = None
+    main_custom_hero_name: Optional[Annotated[str, Translatable()]] = None
     hero_count: Optional[int] = None
     heroes: Optional[List[Hero]] = None
 
@@ -145,7 +147,7 @@ class Teams(BaseModel):
 class ConfiguredHero(BaseModel):
     id: int
     portrait: int
-    name: str
+    name: Annotated[str, Translatable()]
     players_access: int
 
 
@@ -153,7 +155,7 @@ class PredefinedHero(BaseModel):
     experience: Optional[int] = None
     abilities: List[Ability] = []
     artifacts: Dict[int, int] = {}
-    biography: Optional[str] = None
+    biography: Optional[Annotated[str, Translatable()]] = None
     sex: int
     spells: Optional[str] = None
     primary_skills: Optional[PrimarySkills] = None
@@ -165,8 +167,8 @@ class PredefinedHeroNonConfigured(Empty):
 
 # Rumors
 class Rumor(BaseModel):
-    name: str
-    text: str
+    name: Annotated[str, Translatable()]
+    text: Annotated[str, Translatable()]
 
 
 # Terrain
@@ -216,7 +218,7 @@ class MapObject(BaseModel):
 
 class MapEvent(MapObject):
     object_class: Literal['event']
-    message: str | None = None
+    message: Annotated[str, Translatable()] | None = None
     guards: List[Guard] | None = None
     experience: int
     mana_diff: int
@@ -232,33 +234,15 @@ class MapEvent(MapObject):
     can_computer_activate: bool
     remove_after_visit: bool
 
-    # TODO
-    # def model_dump(
-    #     self,
-    #     *,
-    #     mode: Literal['json', 'python'] | str = 'python',
-    #     include: IncEx | None = None,
-    #     exclude: IncEx | None = None,
-    #     context: Any | None = None,
-    #     by_alias: bool | None = None,
-    #     exclude_unset: bool = False,
-    #     exclude_defaults: bool = False,
-    #     exclude_none: bool = False,
-    #     round_trip: bool = False,
-    #     warnings: bool | Literal['none', 'warn', 'error'] = True,
-    #     fallback: Callable[[Any], Any] | None = None,
-    #     serialize_as_any: bool = False,
-    # ) -> dict[str, Any]:
-
 
 class MapSign(MapObject):
     object_class: Literal['sign']
-    message: str
+    message: Annotated[str, Translatable()]
 
 
 class MapOceanBottle(MapObject):
     object_class: Literal['ocean_bottle']
-    message: str
+    message: Annotated[str, Translatable()]
 
 
 class MapHero(MapObject):
@@ -266,7 +250,7 @@ class MapHero(MapObject):
     id: Optional[int] = None
     owner: int
     hero_sub_id: int
-    name: str | None = None
+    name: Annotated[str, Translatable()] | None = None
     experience: int | None = None
     portrait: int | None = None
     abilities: List[Ability] | None = None
@@ -274,7 +258,7 @@ class MapHero(MapObject):
     formation: int
     artifacts: Dict[int, int] | None = None
     patrol_radius: int
-    biography: str | None = None
+    biography: Annotated[str, Translatable()] | None = None
     sex: int | None = None
     custom_spells: str | None = None
     custom_primary_skills: PrimarySkills | None = None
@@ -295,7 +279,7 @@ class MapMonster(MapObject):
     id: int | None = None
     quantity: int
     character: int
-    message: str | None = None
+    message: Annotated[str, Translatable()] | None = None
     resources: Resources | None = None
     artifact_id: int | None = None
     mood: int
@@ -330,9 +314,9 @@ class MapSeerHut(MapObject):
     resources: Resources | None = None
     color: str | None = None
     limit: int | None = None
-    first_visit_text: str | None = None
-    next_visit_text: str | None = None
-    completed_text: str | None = None
+    first_visit_text: Annotated[str, Translatable()] | None = None
+    next_visit_text: Annotated[str, Translatable()] | None = None
+    completed_text: Annotated[str, Translatable()] | None = None
     reward: Reward | None = None
 
 
@@ -355,7 +339,7 @@ class MapGarrison(MapObject):
 
 
 class MessageAndGuards(MapObject):
-    message: str | None = None
+    message: Annotated[str, Translatable()] | None = None
     guards: List[Guard] | None = None
 
 
@@ -392,8 +376,8 @@ class MapRandomResource(MessageAndGuards):
 
 
 class TownEvent(BaseModel):
-    name: str
-    message: str
+    name: Annotated[str, Translatable()]
+    message: Annotated[str, Translatable()]
     resources: Resources = Resources()
     players: str
     is_human_affected: bool
@@ -410,7 +394,7 @@ class MapTown(MapObject):
     object_class: Literal['town', 'random_town']
     id: int | None = None
     owner: str
-    name: str | None = None
+    name: Annotated[str, Translatable()] | None = None
     garrison: List[Creature] | None = None
     formation: int
     built_buildings: str | None = None
@@ -444,7 +428,7 @@ class MapShrineOfMagic(MapObject):
 
 class MapPandoraBox(MapObject):
     object_class: Literal['pandora_box']
-    message: str | None = None
+    message: Annotated[str, Translatable()] | None = None
     guards: List[Guard] | None = None
     experience: int
     mana_diff: int
@@ -489,18 +473,18 @@ class MapRandomDwellingFaction(MapObject):
 class MapQuestGuard(MapObject):
     object_class: Literal['quest_guard']
     mission_type: str
-    level: int
-    hero_object_id: int
-    monster_object_id: int
-    primary_skills: PrimarySkills = PrimarySkills()
-    artifacts: List[int] = []
-    creatures: List[Creature] = []
-    resources: Resources = Resources()
-    color: str
-    limit: int
-    first_visit_text: str
-    next_visit_text: str
-    completed_text: str
+    level: Optional[int] = None
+    hero_object_id: Optional[int] = None
+    monster_object_id: Optional[int] = None
+    primary_skills: Optional[PrimarySkills] = None
+    artifacts: Optional[List[int]] = None
+    creatures: Optional[List[Creature]] = None
+    resources: Optional[Resources] = None
+    color: Optional[str] = None
+    limit: Optional[int] = None
+    first_visit_text: Optional[Annotated[str, Translatable()]] = None
+    next_visit_text: Optional[Annotated[str, Translatable()]] = None
+    completed_text: Optional[Annotated[str, Translatable()]] = None
 
 
 class MapShipyard(MapObject):
@@ -521,8 +505,8 @@ class MapLighthouse(MapObject):
 
 
 class MapTimedEvent(BaseModel):
-    name: str
-    message: str
+    name: Annotated[str, Translatable()]
+    message: Annotated[str, Translatable()]
     resources: Resources = Resources()
     players: str
     is_human_affected: bool
@@ -550,12 +534,15 @@ AllMapObjectSchemas = Union[
     Annotated[MapMineAbandonedMine, Tag('mine')],
     Annotated[MapMineAbandonedMine, Tag('abandoned_mine')],
     Annotated[MapCreatureGenerator, Tag('creature_generator')],
+    Annotated[MapGarrison, Tag('garrison_horizontal')],
+    Annotated[MapGarrison, Tag('garrison_vertical')],
     Annotated[MapShrineOfMagic, Tag('shrine_of_magic')],
     Annotated[MapPandoraBox, Tag('pandora_box')],
     Annotated[MapGrail, Tag('grail')],
     Annotated[MapRandomDwelling, Tag('random_dwelling')],
     Annotated[MapRandomDwellingLvl, Tag('random_dwelling_lvl')],
     Annotated[MapRandomDwellingFaction, Tag('random_dwelling_faction')],
+    Annotated[MapQuestGuard, Tag('quest_guard')],
     Annotated[MapShipyard, Tag('shipyard')],
     Annotated[MapHeroPlaceholder, Tag('hero_place_holder')],
     Annotated[MapLighthouse, Tag('lighthouse')],
@@ -563,39 +550,66 @@ AllMapObjectSchemas = Union[
 ]
 
 
+_OBJECT_CLASS_TO_TAG = {
+    'event': 'event',
+    'sign': 'sign',
+    'ocean_bottle': 'ocean_bottle',
+    'hero': 'hero',
+    'random_hero': 'hero',
+    'prison': 'hero',
+    'monster': 'monster',
+    'random_monster': 'monster',
+    'random_monster_l1': 'monster',
+    'random_monster_l2': 'monster',
+    'random_monster_l3': 'monster',
+    'random_monster_l4': 'monster',
+    'random_monster_l5': 'monster',
+    'random_monster_l6': 'monster',
+    'random_monster_l7': 'monster',
+    'seer_hut': 'seer_hut',
+    'witch_hut': 'witch_hut',
+    'scholar': 'scholar',
+    'spell_scroll': 'spell_scroll',
+    'artifact': 'artifact',
+    'random_art': 'random_artifact',
+    'random_treasure_art': 'random_artifact',
+    'random_minor_art': 'random_artifact',
+    'random_major_art': 'random_artifact',
+    'random_relic_art': 'random_artifact',
+    'resource': 'resource',
+    'random_resource': 'random_resource',
+    'town': 'town',
+    'random_town': 'town',
+    'mine': 'mine',
+    'abandoned_mine': 'abandoned_mine',
+    'creature_generator1': 'creature_generator',
+    'creature_generator2': 'creature_generator',
+    'creature_generator3': 'creature_generator',
+    'creature_generator4': 'creature_generator',
+    'shrine_of_magic_incantation': 'shrine_of_magic',
+    'shrine_of_magic_gesture': 'shrine_of_magic',
+    'shrine_of_magic_thought': 'shrine_of_magic',
+    'pandora_box': 'pandora_box',
+    'grail': 'grail',
+    'random_dwelling': 'random_dwelling',
+    'random_dwelling_lvl': 'random_dwelling_lvl',
+    'random_dwelling_faction': 'random_dwelling_faction',
+    'garrison_horizontal': 'garrison_horizontal',
+    'garrison_vertical': 'garrison_vertical',
+    'quest_guard': 'quest_guard',
+    'shipyard': 'shipyard',
+    'hero_placeholder': 'hero_place_holder',
+    'lighthouse': 'lighthouse',
+}
+
+
 def map_object_discriminator(value) -> str:
-    object_class = value.get('object_class')
-    if object_class in (
-        'event',
-        'sign',
-        'ocean_bottle',
-        'hero',
-        'monster',
-        'seer_hut',
-        'witch_hut',
-        'scholar',
-        'spell_scroll',
-        'artifact',
-        'random_artifact',
-        'resource',
-        'random_resource',
-        'town',
-        'mine',
-        'abandoned_mine',
-        'creature_generator',
-        'shrine_of_magic',
-        'pandora_box',
-        'grail',
-        'random_dwelling',
-        'random_dwelling_lvl',
-        'random_dwelling_faction',
-        'shipyard',
-        'hero_place_holder',
-        'lighthouse',
-        'general_map_object',
-    ):
-        return object_class
-    return 'general_map_object'
+    if isinstance(value, dict):
+        object_class = value.get('object_class')
+    else:
+        object_class = getattr(value, 'object_class', None)
+
+    return _OBJECT_CLASS_TO_TAG.get(object_class, 'general_map_object')
 
 
 # Main Structure Schema
@@ -611,7 +625,6 @@ class GameMapStructure(BaseModel):
     artifacts: Optional[str] = None
     allowed_spells_bytes: Optional[str] = None
     allowed_hero_abilities_bytes: Optional[str] = None
-    rumors_quantity: int
     rumors: List[Rumor] = []
     predefined_heroes: Dict[int, PredefinedHero | PredefinedHeroNonConfigured] = {}
     terrain: Terrain

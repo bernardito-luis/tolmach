@@ -74,8 +74,8 @@ STRUCTURE = {
         'teal_team_number': int,
         'pink_team_number': int,
     },
-    'allowed_heroes_info': str,  # TODO: move to separate structure
-    'placeholder_heroes': [int, ...],  # TODO: does it means something?
+    'allowed_heroes_info': str,
+    'placeholder_heroes': [int, ...],
     'configured_heroes': [
         {
             'id': int,
@@ -84,10 +84,9 @@ STRUCTURE = {
             'players_access': int,
         },
     ],
-    'artifacts': str,  # TODO: blocked artifacts?
+    'artifacts': str,
     'allowed_spells_bytes': str,
     'allowed_hero_abilities_bytes': str,
-    # TODO: need this separate field? (some oter fields don't exist)
     'rumors_quantity': int,  # unite into rumors struct
     'rumors': [
         {
@@ -217,12 +216,11 @@ STRUCTURE = {
                 'remove_after_visit': bool,
             },
             'sign': {
-                'message': str,1
+                'message': str,
             },
             'ocean_bottle': {
                 'message': str,
             },
-            # TODO: another type
             'hero': {
                 'id': int,
                 'owner': int,
@@ -330,7 +328,7 @@ STRUCTURE = {
                 'bonus_id': int,
             },
             'garisson': {
-                'type': str,  # TODO: either class type?
+                'type': str,
                 'owner': int,
                 'creatures': [
                     {

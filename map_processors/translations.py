@@ -3,7 +3,6 @@ import json
 from map_processors.base import MapParser
 
 
-# TODO: remove?
 class MapParserWriter(MapParser):
     def __init__(
         self, filename: str, output_filename: str = None, encoding='cp1251', *args, **kwargs
@@ -70,7 +69,7 @@ class MapParserWriter(MapParser):
 
 class MapTranslationFileGenerator(MapParser):
     def __init__(
-        self, filename: str, output_filename: str = '', encoding='cp1251', *args, **kwargs
+        self, filename: str, output_filename: str = '', encoding=None, *args, **kwargs
     ) -> None:
         super().__init__(filename, encoding=encoding, *args, **kwargs)
         self.strings_to_translate = {}

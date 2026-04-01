@@ -12,7 +12,7 @@ class MapType(enum.IntEnum):
     # VCMI = 100
 
 
-class EnumWithContainsCheck(enum.EnumMeta):  # TODO: delete and just inherit from IntEnum
+class EnumWithContainsCheck(enum.EnumMeta):
     def __contains__(cls, item):
         return item in cls._value2member_map_
 
@@ -141,7 +141,7 @@ class ObjectType(enum.Enum, metaclass=EnumWithContainsCheck):
     RANDOM_DWELLING = 216
     RANDOM_DWELLING_LVL = 217  # subtype = creature level
     RANDOM_DWELLING_FACTION = 218  # subtype = faction
-    GARRISON_VERTICAL = 219  # vertical  # TODO: rename
+    GARRISON_VERTICAL = 219  # vertical
     ABANDONED_MINE = 220
     TRADING_POST_SNOW = 221
     CLOVER_FIELD = 222
