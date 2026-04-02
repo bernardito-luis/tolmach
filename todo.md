@@ -2,7 +2,7 @@
 
 ## Phase 1: H3M → JSON conversion (refinement)
 
-### 1.1 Generate OpenAPI spec from Pydantic models and serve via web page
+### 1.1 (done) Generate OpenAPI spec from Pydantic models and serve via web page
 - Use `GameMapStructure.model_json_schema()` to produce a JSON Schema
 - Wrap it in a minimal OpenAPI 3.1 envelope (OpenAPI 3.1 uses JSON Schema natively)
 - Serve an HTML page with Scalar/Redoc/Swagger UI that renders the schema
