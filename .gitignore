@@ -6,3 +6,6 @@ __pycache__
 /vcmi-develop.zip
 *.h3m
 local_run.py
+.DS_Store
+.env
+maps
