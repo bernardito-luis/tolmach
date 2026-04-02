@@ -9,7 +9,7 @@
 - Lightweight: no FastAPI needed — just a small script with `http.server` or similar
 - Endpoint: `GET /` serves the docs page, `GET /openapi.json` serves the raw schema
 
-### 1.2 Output: `get_structured_data()` should return Pydantic models, not raw dicts
+### 1.2 (done) Output: `get_structured_data()` should return Pydantic models, not raw dicts
 - `MapParser.get_structured_data()` currently builds `self.data` as `OrderedDict` of plain dicts
 - Pydantic schemas already exist in `schemas.py` (`GameMapStructure` and children) but are never used by the parser
 - Each `read_*` method should construct and return the corresponding Pydantic model instead of a dict

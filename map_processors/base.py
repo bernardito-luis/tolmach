@@ -13,6 +13,7 @@ import chardet
 
 from enums import ColorEnum, MapType, ObjectType, QuestType, ResourceType, RewardType
 from exceptions import H3MapParserException
+from map_processors.schemas import GameMapStructure
 
 
 class MapParser:
@@ -1069,7 +1070,7 @@ class MapParser:
                 }
             )
 
-    def get_structured_data(self) -> dict:
+    def get_structured_data(self) -> GameMapStructure | None:
         if not self.encoding:
             self.detect_encoding_by_header()
 
@@ -1097,7 +1098,7 @@ class MapParser:
             with open('strange_ab_maps.json', 'w') as f:
                 json.dump(strange_ab_maps, f)
             self.data = {}
-            return {}
+            return None
         self.read_events()
 
-        return self.data
+        return GameMapStructure.model_validate(self.data)

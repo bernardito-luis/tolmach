@@ -634,8 +634,7 @@ class GameMapStructure(BaseModel):
     ] = []
     events: List[MapTimedEvent] = []
 
-    class Config:
-        validate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     def __str__(self):
         return f'HMM3 map structure for "{self.header.map_name}"'
