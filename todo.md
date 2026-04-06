@@ -157,3 +157,10 @@
 ### 4.4 Documentation
 - README: update with Pydantic-model-based usage examples
 - Docstrings for public API
+
+
+### 5 Review map archive
+- Faeries.h3m
+- A Matter of Honor.h3m
+- A Hard Journey.h3m (wrong coding)
+- Taiji.h3m (wrong coding)

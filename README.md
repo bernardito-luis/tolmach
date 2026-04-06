@@ -29,3 +29,9 @@ translator = MapSimpleTranslator('D:\\Heroes 3\\Maps\\map.h3m')
 translator.write_output_file()
 ```
 see code for more details
+
+#### Most known codings
+- cp1251
+- cp1250
+- Windows-1252
+- GB18030

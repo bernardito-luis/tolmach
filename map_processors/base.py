@@ -7,6 +7,7 @@ import base64
 import collections
 import gzip
 import json
+import pathlib
 from functools import cached_property
 
 import chardet
@@ -19,7 +20,7 @@ from map_processors.schemas import GameMapStructure
 class MapParser:
     def __init__(
         self,
-        filename: str,
+        filename: str | pathlib.Path,
         encoding: str | None = None,
         fallback_encoding: str | None = 'cp1251',
         *args,
@@ -152,6 +153,9 @@ class MapParser:
 
         map_name = self.process_string_to_bytes()
         map_description = self.process_string_to_bytes()
+        map_description = map_description.replace(
+            b'This map is taken from the catalogue www.heroesportal.net', b''
+        ).replace(b' ', b'')
         map_name_coding = None
         map_description_coding = None
 
@@ -160,7 +164,11 @@ class MapParser:
             map_name_coding = detect_result['encoding']
 
         detect_result = chardet.detect(map_description, prefer_superset=True)
-        if detect_result['confidence'] > 0.9:
+        if (
+            detect_result['confidence'] > 0.85
+            or (detect_result['encoding'] == 'GB18030' and detect_result['confidence'] > 0.2)
+            or (detect_result['encoding'] == 'Windows-1251' and detect_result['confidence'] > 0.2)
+        ):
             map_description_coding = detect_result['encoding']
 
         if map_description_coding:
@@ -199,6 +207,25 @@ class MapParser:
         self.data['header']['hero_level_limit'] = None
         if self.map_type != MapType.ROE:
             self.data['header']['hero_level_limit'] = self.process_uint8()
+
+    def map_stats(self) -> dict:
+        difficulty_names = {0: 'Easy', 1: 'Normal', 2: 'Hard', 3: 'Expert', 4: 'Impossible'}
+
+        if 'header' not in self.data:
+            self.data = collections.OrderedDict()
+            self.read_header()
+        header = self.data['header']
+
+        size = header['width']
+        return {
+            'map_name': header['map_name'],
+            'map_description': header['map_description'],
+            'encoding': self.encoding,
+            'map_type': MapType(header['map_type']).name,
+            'size': f'{size}x{size}',
+            'has_underground': header['has_underground'],
+            'difficulty': difficulty_names.get(header['map_difficulty'], header['map_difficulty']),
+        }
 
     def read_players_attributes(self):
         self.data['players_attributes'] = []
@@ -1071,6 +1098,7 @@ class MapParser:
             )
 
     def get_structured_data(self) -> GameMapStructure | None:
+        self.data = collections.OrderedDict()
         if not self.encoding:
             self.detect_encoding_by_header()
 
