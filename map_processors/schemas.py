@@ -298,6 +298,8 @@ class Reward(BaseModel):
     resource_quantity: Optional[int] = None
     skill_id: Optional[int] = None
     skill_increase: Optional[int] = None
+    ability_id: Optional[int] = None
+    ability_increase: Optional[int] = None
     artifact_id: Optional[int] = None
     spell_id: Optional[int] = None
     creature_id: Optional[int] = None
@@ -310,7 +312,7 @@ class MapSeerHut(MapObject):
     level: int | None = None
     hero_object_id: int | None = None
     monster_object_id: int | None = None
-    primary_skills: dict | None = None
+    primary_skills: PrimarySkills | None = None
     artifacts: list[int] | None = None
     creatures: list[Creature] | None = None
     resources: Resources | None = None
@@ -546,7 +548,7 @@ AllMapObjectSchemas = Union[
     Annotated[MapRandomDwellingFaction, Tag('random_dwelling_faction')],
     Annotated[MapQuestGuard, Tag('quest_guard')],
     Annotated[MapShipyard, Tag('shipyard')],
-    Annotated[MapHeroPlaceholder, Tag('hero_place_holder')],
+    Annotated[MapHeroPlaceholder, Tag('hero_placeholder')],
     Annotated[MapLighthouse, Tag('lighthouse')],
     Annotated[MapObject, Tag('general_map_object')],
 ]
@@ -600,7 +602,7 @@ _OBJECT_CLASS_TO_TAG = {
     'garrison_vertical': 'garrison_vertical',
     'quest_guard': 'quest_guard',
     'shipyard': 'shipyard',
-    'hero_placeholder': 'hero_place_holder',
+    'hero_placeholder': 'hero_placeholder',
     'lighthouse': 'lighthouse',
 }
 

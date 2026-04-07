@@ -1002,7 +1002,7 @@ class MapParser:
             elif object_class == ObjectType.PANDORA_BOX.value:
                 map_object['message'], map_object['guards'] = self.read_message_and_guards()
                 map_object['experience'] = self.process_uint32()
-                map_object['mana_diff'] = self.process_uint32()
+                map_object['mana_diff'] = self.process_int32()
                 map_object['morale_diff'] = self.process_int8()
                 map_object['luck_diff'] = self.process_int8()
                 map_object['resources'] = self.read_resources()

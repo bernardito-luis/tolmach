@@ -41,7 +41,7 @@
 - Consider: instead of dual-writing during parse, reconstruct binary from the Pydantic model (this becomes Phase 2)
 - For now, mark `MapParserWriter` as deprecated or internal; the public API should be Pydantic-model-based
 
-### 1.8 Schema completeness audit
+### 1.8 (done) Schema completeness audit
 - Verify every object type parsed in `read_objects()` has a matching Pydantic schema in `schemas.py`
 - Verify discriminator union `AllMapObjectSchemas` covers all `ObjectType` enum members that carry data
 - Check field types match what the parser actually produces (e.g. `MapArtifact.artifact_id` is `int` in schema but parser takes it from `def` table — make sure this round-trips)
