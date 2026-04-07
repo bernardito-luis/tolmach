@@ -63,7 +63,7 @@
 
 ### 1.11 TODOs from comments
 
-#### 1.11.1 `enums.py` — cleanup
+#### 1.11.1 (done) `enums.py` — cleanup
 - `EnumWithContainsCheck` metaclass — delete and just inherit from `IntEnum` (line 15)
 
 #### 1.11.2 `map_processors/base.py` — parsing improvements
