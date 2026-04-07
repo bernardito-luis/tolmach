@@ -12,12 +12,7 @@ class MapType(enum.IntEnum):
     # VCMI = 100
 
 
-class EnumWithContainsCheck(enum.EnumMeta):
-    def __contains__(cls, item):
-        return item in cls._value2member_map_
-
-
-class ObjectType(enum.Enum, metaclass=EnumWithContainsCheck):
+class ObjectType(enum.IntEnum):
     NO_OBJ = -1
     ALTAR_OF_SACRIFICE = 2
     ANCHOR_POINT = 3
