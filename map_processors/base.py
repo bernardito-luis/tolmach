@@ -7,6 +7,7 @@ import base64
 import collections
 import gzip
 import json
+import logging
 import pathlib
 from functools import cached_property
 
@@ -15,6 +16,8 @@ import chardet
 from enums import ColorEnum, MapType, ObjectType, QuestType, ResourceType, RewardType
 from exceptions import H3MapParserException
 from map_processors.schemas import GameMapStructure
+
+logger = logging.getLogger(__name__)
 
 
 class MapParser:
@@ -82,7 +85,12 @@ class MapParser:
         self._cursor_position += 4
         return value
 
-    def skip_n_bytes(self, n: int) -> None:
+    def skip_n_bytes(self, n: int, quiet: bool = True) -> None:
+        skipped = self.map_binary[self._cursor_position : self._cursor_position + n]
+        if any(skipped) and not quiet:
+            logger.warning(
+                'Non-empty bytes skipped at offset %s: %s', self._cursor_position, skipped.hex(' ')
+            )
         self._cursor_position += n
 
     def process_n_bytes(self, n: int) -> bytes:
