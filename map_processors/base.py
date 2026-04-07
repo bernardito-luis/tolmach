@@ -13,8 +13,8 @@ from functools import cached_property
 
 import chardet
 
-from enums import ColorEnum, MapType, ObjectType, QuestType, ResourceType, RewardType
-from exceptions import H3MapParserException
+from map_processors.enums import ColorEnum, MapType, ObjectType, QuestType, ResourceType, RewardType
+from map_processors.exceptions import H3MapParserException
 from map_processors.schemas import GameMapStructure
 
 logger = logging.getLogger(__name__)

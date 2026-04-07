@@ -27,11 +27,11 @@
 - Replace with proper error handling — raise a clear `H3MapParserException` with context (filename, cursor position, object index)
 - Remove leftover `print()` calls (e.g. `detect_encoding_by_header` line 153, `base_process_string` line 115)
 
-### 1.5 Remove/deprecate `map_structure.py`
+### 1.5 (done) Remove/deprecate `map_structure.py`
 - `map_structure.py` is a hand-written dict-based schema that duplicates `schemas.py`
 - Once Pydantic models are the source of truth, this file is dead weight — delete it
 
-### 1.6 Ensure `enums.py` and `exceptions.py` live inside the package
+### 1.6 (done) Ensure `enums.py` and `exceptions.py` live inside the package
 - Currently `enums.py` and `exceptions.py` sit at the project root, outside `map_processors/`
 - Move them into the package (e.g. `map_processors/enums.py`, `map_processors/exceptions.py`)
 - Update imports in `base.py`
