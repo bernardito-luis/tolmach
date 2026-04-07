@@ -16,7 +16,7 @@
 - `get_structured_data()` should return `GameMapStructure` instance
 - This gives validation, typed access, and `.model_dump_json()` for free
 
-### 1.3 Serialization: `GameMapStructure` → JSON file
+### 1.3 (done) Serialization: `GameMapStructure` → JSON file
 - Add a method (or standalone function) that takes a `GameMapStructure` and writes a human-readable JSON file
 - Use `model_dump(mode='json', by_alias=True)` so the `def` field alias works correctly
 - Ensure `Coordinates`, `Resources`, `PrimarySkills` etc. serialize cleanly (no Pydantic internals leaking)

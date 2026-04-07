@@ -1,3 +1,5 @@
+import json
+import pathlib
 from typing import Annotated, Dict, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, conint
@@ -640,3 +642,9 @@ class GameMapStructure(BaseModel):
         return f'HMM3 map structure for "{self.header.map_name}"'
 
     __repr__ = __str__
+
+    def to_json_file(self, path: str) -> None:
+        data = self.model_dump(mode='json', by_alias=True, exclude_none=True)
+        pathlib.Path(path).write_text(
+            json.dumps(data, indent=2, ensure_ascii=False), encoding='utf-8'
+        )
