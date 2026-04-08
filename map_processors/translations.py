@@ -3,16 +3,24 @@ import json
 from map_processors.base import MapParser
 
 
-class MapParserWriter(MapParser):
+class _MapParserWriter(MapParser):
+    """Internal class that records all processed bytes for binary reconstruction.
+
+    Not part of the public API — use MapTranslationFileGenerator or
+    MapSimpleTranslator instead.
+    """
+
     def __init__(
         self, filename: str, output_filename: str = None, encoding='cp1251', *args, **kwargs
     ) -> None:
         super().__init__(filename, *args, **kwargs)
         self.output_data_binary = []
 
-        if not output_filename:
-            output_filename, ext = filename.rsplit('.', maxsplit=1)
-            self.output_filename = f'{output_filename}_output.{ext}'
+        if output_filename:
+            self.output_filename = output_filename
+        else:
+            base, ext = filename.rsplit('.', maxsplit=1)
+            self.output_filename = f'{base}_output.{ext}'
 
     def process_uint8(self) -> int:
         value = self.map_binary[self._cursor_position]
@@ -92,7 +100,7 @@ class MapTranslationFileGenerator(MapParser):
             f.write(json.dumps(self.strings_to_translate, indent=4, ensure_ascii=False))
 
 
-class MapSimpleTranslator(MapParserWriter):
+class MapSimpleTranslator(_MapParserWriter):
     def __init__(
         self,
         filename: str,
@@ -103,12 +111,16 @@ class MapSimpleTranslator(MapParserWriter):
         **kwargs,
     ) -> None:
         super().__init__(filename, encoding=encoding, *args, **kwargs)
-        if not translations_filename:
-            translations_filename, ext = filename.rsplit('.', maxsplit=1)
-            self.translations_filename = f'{translations_filename}_translations.json'
-        if not output_filename:
-            output_filename, ext = filename.rsplit('.', maxsplit=1)
-            self.output_filename = f'{output_filename}_translated.{ext}'
+        if translations_filename:
+            self.translations_filename = translations_filename
+        else:
+            base, ext = filename.rsplit('.', maxsplit=1)
+            self.translations_filename = f'{base}_translations.json'
+        if output_filename:
+            self.output_filename = output_filename
+        else:
+            base, ext = filename.rsplit('.', maxsplit=1)
+            self.output_filename = f'{base}_translated.{ext}'
 
         with open(self.translations_filename, 'r', encoding=self.encoding) as f:
             self.translations = json.load(f)
@@ -135,3 +147,7 @@ class MapSimpleTranslator(MapParserWriter):
         output_binary = b''.join(self.output_data_binary)
         with open(self.output_filename, 'wb') as f:
             f.write(output_binary)
+
+
+# Deprecated alias — will be removed in a future version.
+MapParserWriter = _MapParserWriter

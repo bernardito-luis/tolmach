@@ -36,7 +36,7 @@
 - Move them into the package (e.g. `map_processors/enums.py`, `map_processors/exceptions.py`)
 - Update imports in `base.py`
 
-### 1.7 Clean up `MapParserWriter` and `MapTranslationFileGenerator` coupling
+### 1.7 (done) Clean up `MapParserWriter` and `MapTranslationFileGenerator` coupling
 - `MapParserWriter` in `translations.py` overrides every `process_*` method just to also append bytes — fragile
 - Consider: instead of dual-writing during parse, reconstruct binary from the Pydantic model (this becomes Phase 2)
 - For now, mark `MapParserWriter` as deprecated or internal; the public API should be Pydantic-model-based
