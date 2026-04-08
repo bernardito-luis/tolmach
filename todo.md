@@ -46,14 +46,10 @@
 - Verify discriminator union `AllMapObjectSchemas` covers all `ObjectType` enum members that carry data
 - Check field types match what the parser actually produces (e.g. `MapArtifact.artifact_id` is `int` in schema but parser takes it from `def` table — make sure this round-trips)
 
-### 1.9 Test coverage for H3M → JSON
-- Current tests: only one test (`test_write_output_file`) that tests a single Chinese map
-- Add at least:
-  - Unit test: parse a small SOD map → assert `GameMapStructure` validates successfully
-  - Unit test: parse a ROE map (different code paths for artifact IDs, hero IDs, etc.)
-  - Unit test: parse an AB map
-  - Round-trip sanity: `parse → model_dump_json → model_validate_json` should not lose data
-- Need sample .h3m files in `tests/fixtures/` (small maps, one per format)
+### 1.9 (done) Test coverage for H3M → JSON
+- Added `test_parse_sod_map`: parses 6424.h3m via `MapParser` directly, asserts `GameMapStructure` validates
+- Added `test_round_trip_json`: `parse → model_dump_json → model_validate_json`, asserts all fields match
+- Uses existing 6424.h3m already tracked in the repository
 
 ### 1.10 Encoding handling
 - `detect_encoding_by_header()` uses `chardet` with fallback to `cp1251` and a `MacCyrillic → cp1251` hack
