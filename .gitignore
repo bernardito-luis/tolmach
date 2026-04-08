@@ -2,6 +2,7 @@
 __pycache__
 *.py[co]
 /venv
+/.venv
 /vcmi-develop
 /vcmi-develop.zip
 *.h3m
