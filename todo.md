@@ -22,8 +22,8 @@
 - Ensure `Coordinates`, `Resources`, `PrimarySkills` etc. serialize cleanly (no Pydantic internals leaking)
 - Decide on handling of `None` / default values: exclude or keep (probably `exclude_none=True` for readability)
 
-### 1.4 Remove debug / hack code in `get_structured_data()`
-- The `try/except IndexError` block (lines 1105-1116) that silently swallows parsing errors and writes to `strange_ab_maps.json` must go
+### 1.4 (done) Remove debug / hack code in `get_structured_data()`
+- The `try/except IndexError` block (lines 1126-1137) that silently swallows parsing errors and writes to `strange_ab_maps.json` must go
 - Replace with proper error handling — raise a clear `H3MapParserException` with context (filename, cursor position, object index)
 - Remove leftover `print()` calls (e.g. `detect_encoding_by_header` line 153, `base_process_string` line 115)
 

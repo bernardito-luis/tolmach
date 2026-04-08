@@ -6,7 +6,6 @@ https://github.com/vcmi/vcmi/blob/develop/lib/mapping/MapFormatH3M.cpp
 import base64
 import collections
 import gzip
-import json
 import logging
 import pathlib
 from functools import cached_property
@@ -1125,16 +1124,14 @@ class MapParser:
         self.read_def_info()
         try:
             self.read_objects()
-        except IndexError:
-            # print('AB strange map! breaks once')
-            with open('strange_ab_maps.json') as f:
-                strange_ab_maps = json.load(f)
-            filename = self.filename.split('/')[-1]
-            strange_ab_maps.append(filename)
-            with open('strange_ab_maps.json', 'w') as f:
-                json.dump(strange_ab_maps, f)
-            self.data = {}
-            return None
+        except IndexError as e:
+            logger.error(
+                f'  !!!!! Failed to parse objects in {self.filename} '
+                f'at offset {self._cursor_position}'
+            )
+            raise H3MapParserException(
+                f'Failed to parse objects in {self.filename} at offset {self._cursor_position}'
+            ) from e
         self.read_events()
 
         return GameMapStructure.model_validate(self.data)
