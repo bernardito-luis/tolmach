@@ -1126,8 +1126,7 @@ class MapParser:
             self.read_objects()
         except IndexError as e:
             logger.error(
-                f'  !!!!! Failed to parse objects in {self.filename} '
-                f'at offset {self._cursor_position}'
+                'Failed to parse objects in %s at offset %s', self.filename, self._cursor_position
             )
             raise H3MapParserException(
                 f'Failed to parse objects in {self.filename} at offset {self._cursor_position}'
