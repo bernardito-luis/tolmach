@@ -51,7 +51,7 @@
 - Added `test_round_trip_json`: `parse → model_dump_json → model_validate_json`, asserts all fields match
 - Uses existing 6424.h3m already tracked in the repository
 
-### 1.10 Encoding handling
+### 1.10 (done) Encoding handling
 - `detect_encoding_by_header()` uses `chardet` with fallback to `cp1251` and a `MacCyrillic → cp1251` hack
 - Document supported encodings
 - Consider making encoding detection a separate utility function (testable independently)

@@ -10,8 +10,7 @@ import logging
 import pathlib
 from functools import cached_property
 
-import chardet
-
+from map_processors.encoding import detect_map_encoding
 from map_processors.enums import ColorEnum, MapType, ObjectType, QuestType, ResourceType, RewardType
 from map_processors.exceptions import H3MapParserException
 from map_processors.schemas import GameMapStructure
@@ -163,30 +162,10 @@ class MapParser:
         map_description = map_description.replace(
             b'This map is taken from the catalogue www.heroesportal.net', b''
         ).replace(b' ', b'')
-        map_name_coding = None
-        map_description_coding = None
 
-        detect_result = chardet.detect(map_name, prefer_superset=True)
-        if detect_result['confidence'] > 0.9:
-            map_name_coding = detect_result['encoding']
-
-        detect_result = chardet.detect(map_description, prefer_superset=True)
-        if (
-            detect_result['confidence'] > 0.85
-            or (detect_result['encoding'] == 'GB18030' and detect_result['confidence'] > 0.2)
-            or (detect_result['encoding'] == 'Windows-1251' and detect_result['confidence'] > 0.2)
-        ):
-            map_description_coding = detect_result['encoding']
-
-        if map_description_coding:
-            self.encoding = map_description_coding
-        elif map_name_coding:
-            self.encoding = map_name_coding
-        elif self.fallback_encoding:
-            self.encoding = self.fallback_encoding
-
-        if self.encoding == 'MacCyrillic':
-            self.encoding = 'cp1251'
+        self.encoding = detect_map_encoding(
+            map_name, map_description, fallback_encoding=self.fallback_encoding
+        )
 
         self.reset_cursor_position()
 
