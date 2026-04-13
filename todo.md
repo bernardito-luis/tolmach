@@ -17,9 +17,9 @@
 - (done) `try/except Exception` — remove or rework broad exception catch; `print(self.map_binary[self._cursor_position : string_end], 'tried into', self.encoding)` (line 108)
 - (done) `computer_playstyle` — look for matching enum (line 219)
 - Victory condition field — enum + rename to `special_victory_condition` (line 267)
-- `special_loss_condition` — convert to enum (line 310-...)
-- `red_team_number` — parse to bitmask? (line 328-...)
-- Object reassembly question — can we continue parsing if assembly is unclear? (line 522)
+- `special_loss_condition` — convert to enum (with discriminator) (line 309-...)
+- map_processors.base.MapParser.process_n_bytes_to_mask it is now processing to a binary format, not to a mask
+- (done) Shall we continue? we can't assemble it back if we do? (if creature_id == max_id) (line 560)
 - Primary skills reading — extract to `read_primary_skills()` method (line 645)
 - `mana_diff` — check if `int32` should be unsigned (line 735)
 - `bonus_type` — convert to enum (line 889)

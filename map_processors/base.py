@@ -549,7 +549,8 @@ class MapParser:
             )
 
     def read_creature_set(self, quantity) -> list:
-        max_id = 0xFF if self.map_type == MapType.ROE else 0xFFFF
+        # max_id = 0xFF if self.map_type == MapType.ROE else 0xFFFF
+        # but don't skip stacks with max_id
         creatures = []
         for _ in range(quantity):
             if self.map_type >= MapType.AB:
@@ -557,8 +558,6 @@ class MapParser:
             else:
                 creature_id = self.process_uint8()
             creatures_quantity = self.process_uint16()
-            if creature_id == max_id:
-                continue
             creatures.append(
                 {
                     'id': creature_id,
