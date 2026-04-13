@@ -11,7 +11,15 @@ import pathlib
 from functools import cached_property
 
 from map_processors.encoding import detect_encoding, detect_map_encoding
-from map_processors.enums import ColorEnum, MapType, ObjectType, QuestType, ResourceType, RewardType
+from map_processors.enums import (
+    ColorEnum,
+    ComputerPlaystyleEnum,
+    MapType,
+    ObjectType,
+    QuestType,
+    ResourceType,
+    RewardType,
+)
 from map_processors.exceptions import H3MapParserException
 from map_processors.schemas import GameMapStructure
 
@@ -249,7 +257,9 @@ class MapParser:
                 self.data['players_attributes'].append(player_info)
                 continue
 
-            player_info['computer_playstyle'] = self.process_uint8()
+            player_info['computer_playstyle'] = ComputerPlaystyleEnum(
+                self.process_uint8()
+            ).name.lower()
             if self.map_type >= MapType.SOD:
                 player_info['are_factions_configured'] = self.process_uint8()
             if self.map_type == MapType.ROE:

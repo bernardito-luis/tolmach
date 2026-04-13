@@ -198,3 +198,11 @@ class ResourceType(enum.Enum):
     CRYSTAL = 4
     GEMS = 5
     GOLD = 6
+
+
+class ComputerPlaystyleEnum(enum.IntEnum):
+    NONE = -1
+    RANDOM = 0
+    WARRIOR = 1
+    BUILDER = 2
+    EXPLORER = 3

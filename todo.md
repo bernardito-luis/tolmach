@@ -15,7 +15,7 @@
 - (done) `placeholder_heroes: [int, ...]` — unclear semantics, investigate (line 354), just an array containing hero_id's for objects of class 'hero_placeholder', seems to be useless
 - (done) `skip_n_bytes()` — alert when skipped bytes are non-empty (line 83)
 - (done) `try/except Exception` — remove or rework broad exception catch; `print(self.map_binary[self._cursor_position : string_end], 'tried into', self.encoding)` (line 108)
-- `computer_playstyle` — look for matching enum (line 219)
+- (done) `computer_playstyle` — look for matching enum (line 219)
 - Victory condition field — enum + rename to `special_victory_condition` (line 267)
 - `special_loss_condition` — convert to enum (line 310-...)
 - `red_team_number` — parse to bitmask? (line 328-...)

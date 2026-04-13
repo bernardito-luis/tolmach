@@ -89,7 +89,7 @@ class Hero(BaseModel):
 class PlayerAttributes(BaseModel):
     can_human_play: bool
     can_computer_play: bool
-    computer_playstyle: Optional[int] = None
+    computer_playstyle: Optional[str] = None
     are_factions_configured: Optional[int] = None
     allowed_factions: Optional[int] = None
     is_faction_random: Optional[int] = None
