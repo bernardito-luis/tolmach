@@ -29,8 +29,8 @@ def detect_map_encoding(
     *,
     fallback_encoding: str | None = 'cp1251',
 ) -> str | None:
-    map_name_coding = _detect_field_encoding(map_name, confidence_threshold=0.9)
-    map_description_coding = _detect_field_encoding(
+    map_name_coding = detect_encoding(map_name, confidence_threshold=0.9)
+    map_description_coding = detect_encoding(
         map_description, confidence_threshold=DEFAULT_CONFIDENCE_THRESHOLD
     )
 
@@ -38,11 +38,11 @@ def detect_map_encoding(
     return ENCODING_ALIASES.get(encoding, encoding) if encoding else None
 
 
-def _detect_field_encoding(data: bytes, *, confidence_threshold: float) -> str | None:
-    if not data:
+def detect_encoding(unknown_bytes: bytes, *, confidence_threshold: float) -> str | None:
+    if not unknown_bytes:
         return None
 
-    result = chardet.detect(data, prefer_superset=True)
+    result = chardet.detect(unknown_bytes, prefer_superset=True)
     detected_encoding: str | None = result['encoding']
     confidence: float = result['confidence']
 

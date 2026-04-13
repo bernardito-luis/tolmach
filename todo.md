@@ -2,59 +2,7 @@
 
 ## Phase 1: H3M → JSON conversion (refinement)
 
-### 1.1 (done) Generate OpenAPI spec from Pydantic models and serve via web page
-- Use `GameMapStructure.model_json_schema()` to produce a JSON Schema
-- Wrap it in a minimal OpenAPI 3.1 envelope (OpenAPI 3.1 uses JSON Schema natively)
-- Serve an HTML page with Scalar/Redoc/Swagger UI that renders the schema
-- Lightweight: no FastAPI needed — just a small script with `http.server` or similar
-- Endpoint: `GET /` serves the docs page, `GET /openapi.json` serves the raw schema
-
-### 1.2 (done) Output: `get_structured_data()` should return Pydantic models, not raw dicts
-- `MapParser.get_structured_data()` currently builds `self.data` as `OrderedDict` of plain dicts
-- Pydantic schemas already exist in `schemas.py` (`GameMapStructure` and children) but are never used by the parser
-- Each `read_*` method should construct and return the corresponding Pydantic model instead of a dict
-- `get_structured_data()` should return `GameMapStructure` instance
-- This gives validation, typed access, and `.model_dump_json()` for free
-
-### 1.3 (done) Serialization: `GameMapStructure` → JSON file
-- Add a method (or standalone function) that takes a `GameMapStructure` and writes a human-readable JSON file
-- Use `model_dump(mode='json', by_alias=True)` so the `def` field alias works correctly
-- Ensure `Coordinates`, `Resources`, `PrimarySkills` etc. serialize cleanly (no Pydantic internals leaking)
-- Decide on handling of `None` / default values: exclude or keep (probably `exclude_none=True` for readability)
-
-### 1.4 (done) Remove debug / hack code in `get_structured_data()`
-- The `try/except IndexError` block (lines 1126-1137) that silently swallows parsing errors and writes to `strange_ab_maps.json` must go
-- Replace with proper error handling — raise a clear `H3MapParserException` with context (filename, cursor position, object index)
-- Remove leftover `print()` calls (e.g. `detect_encoding_by_header` line 153, `base_process_string` line 115)
-
-### 1.5 (done) Remove/deprecate `map_structure.py`
-- `map_structure.py` is a hand-written dict-based schema that duplicates `schemas.py`
-- Once Pydantic models are the source of truth, this file is dead weight — delete it
-
-### 1.6 (done) Ensure `enums.py` and `exceptions.py` live inside the package
-- Currently `enums.py` and `exceptions.py` sit at the project root, outside `map_processors/`
-- Move them into the package (e.g. `map_processors/enums.py`, `map_processors/exceptions.py`)
-- Update imports in `base.py`
-
-### 1.7 (done) Clean up `MapParserWriter` and `MapTranslationFileGenerator` coupling
-- `MapParserWriter` in `translations.py` overrides every `process_*` method just to also append bytes — fragile
-- Consider: instead of dual-writing during parse, reconstruct binary from the Pydantic model (this becomes Phase 2)
-- For now, mark `MapParserWriter` as deprecated or internal; the public API should be Pydantic-model-based
-
-### 1.8 (done) Schema completeness audit
-- Verify every object type parsed in `read_objects()` has a matching Pydantic schema in `schemas.py`
-- Verify discriminator union `AllMapObjectSchemas` covers all `ObjectType` enum members that carry data
-- Check field types match what the parser actually produces (e.g. `MapArtifact.artifact_id` is `int` in schema but parser takes it from `def` table — make sure this round-trips)
-
-### 1.9 (done) Test coverage for H3M → JSON
-- Added `test_parse_sod_map`: parses 6424.h3m via `MapParser` directly, asserts `GameMapStructure` validates
-- Added `test_round_trip_json`: `parse → model_dump_json → model_validate_json`, asserts all fields match
-- Uses existing 6424.h3m already tracked in the repository
-
-### 1.10 (done) Encoding handling
-- `detect_encoding_by_header()` uses `chardet` with fallback to `cp1251` and a `MacCyrillic → cp1251` hack
-- Document supported encodings
-- Consider making encoding detection a separate utility function (testable independently)
+(done)
 
 
 ### 1.11 TODOs from comments
@@ -64,9 +12,9 @@
 
 #### 1.11.2 `map_processors/base.py` — parsing improvements
 - `allowed_heroes_info` is typed as `str` — move to separate structure (line 340)
-- `placeholder_heroes: [int, ...]` — unclear semantics, investigate (line 346)
-- `skip_n_bytes()` — alert when skipped bytes are non-empty (line 83)
-- `try/except Exception` — remove or rework broad exception catch; `print(self.map_binary[self._cursor_position : string_end], 'tried into', self.encoding)` (line 108)
+- (done) `placeholder_heroes: [int, ...]` — unclear semantics, investigate (line 354), just an array containing hero_id's for objects of class 'hero_placeholder', seems to be useless
+- (done) `skip_n_bytes()` — alert when skipped bytes are non-empty (line 83)
+- (done) `try/except Exception` — remove or rework broad exception catch; `print(self.map_binary[self._cursor_position : string_end], 'tried into', self.encoding)` (line 108)
 - `computer_playstyle` — look for matching enum (line 219)
 - Victory condition field — enum + rename to `special_victory_condition` (line 267)
 - `special_loss_condition` — convert to enum (line 310-...)
@@ -146,11 +94,15 @@
 - Define what's exported from `map_processors.__init__.py` (currently empty)
 - Consider renaming package from `map_processors` to `tolmach` for consistency with PyPI name
 
-### 4.3 CI/CD
+### 4.3 Add typer checker
+- For example ty
+- Fix type checker inspections
+
+### 4.4 CI/CD
 - GitHub Actions: lint, test, publish on tag
 - Test matrix: Python 3.13+
 
-### 4.4 Documentation
+### 4.5 Documentation
 - README: update with Pydantic-model-based usage examples
 - Docstrings for public API
 

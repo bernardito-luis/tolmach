@@ -10,7 +10,7 @@ import logging
 import pathlib
 from functools import cached_property
 
-from map_processors.encoding import detect_map_encoding
+from map_processors.encoding import detect_encoding, detect_map_encoding
 from map_processors.enums import ColorEnum, MapType, ObjectType, QuestType, ResourceType, RewardType
 from map_processors.exceptions import H3MapParserException
 from map_processors.schemas import GameMapStructure
@@ -33,7 +33,8 @@ class MapParser:
         self.map_type = None
         self.encoding = encoding
         self.fallback_encoding = fallback_encoding
-        self.exception_count = 0
+        self.string_other_encoding_count = 0
+        self.string_exception_count = 0
 
     @staticmethod
     def bytes_to_int(input_bytes: bytes) -> int:
@@ -110,15 +111,31 @@ class MapParser:
     def base_process_string(self) -> str:
         string_len = self.process_uint32()
         string_end = self._cursor_position + string_len
+        string_bytes = self.map_binary[self._cursor_position : string_end]
         try:
-            string_from_map = self.map_binary[self._cursor_position : string_end].decode(
-                self.encoding
+            string_from_map = string_bytes.decode(self.encoding)
+        except UnicodeDecodeError:
+            another_encoding = detect_encoding(string_bytes, confidence_threshold=0.2)
+            if another_encoding:
+                try:
+                    string_from_map = string_bytes.decode(another_encoding)
+                    logger.warning(
+                        'Found another encoding: %s -> %s', another_encoding, string_from_map
+                    )
+                    self.string_other_encoding_count += 1
+                    self._cursor_position = string_end
+                    return string_from_map
+                except UnicodeDecodeError:
+                    pass
+
+            logger.warning(
+                'String process error: %s tried into ("%s", "%s")',
+                string_bytes,
+                self.encoding,
+                another_encoding,
             )
-        except Exception:
-            string_from_map = '<cut>'
-            if self.exception_count >= 3:
-                raise
-            self.exception_count += 1
+            string_from_map = '<encoding error>'
+            self.string_exception_count += 1
 
         self._cursor_position = string_end
         return string_from_map
@@ -211,6 +228,8 @@ class MapParser:
             'size': f'{size}x{size}',
             'has_underground': header['has_underground'],
             'difficulty': difficulty_names.get(header['map_difficulty'], header['map_difficulty']),
+            'other_encoding_count': self.string_other_encoding_count,
+            'exception_count': self.string_exception_count,
         }
 
     def read_players_attributes(self):
