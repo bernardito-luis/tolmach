@@ -10,6 +10,7 @@ import logging
 import pathlib
 from functools import cached_property
 
+from map_processors.custom_types import PrimarySkills
 from map_processors.encoding import detect_encoding, detect_map_encoding
 from map_processors.enums import (
     ColorEnum,
@@ -460,12 +461,7 @@ class MapParser:
                 hero['spells'] = self.process_n_bytes_to_mask(9)
 
             if self.process_uint8():
-                hero['primary_skills'] = {
-                    'attack': self.process_uint8(),
-                    'defence': self.process_uint8(),
-                    'power': self.process_uint8(),
-                    'knowledge': self.process_uint8(),
-                }
+                hero['primary_skills'] = self.read_primary_skills()
 
     def load_hero_artifacts(self, to_hero: dict):
         if not self.process_uint8():
@@ -547,6 +543,14 @@ class MapParser:
                     'unknown_base64': self.process_n_bytes_to_base64(16),
                 }
             )
+
+    def read_primary_skills(self) -> PrimarySkills:
+        return PrimarySkills(
+            attack=self.process_uint8(),
+            defence=self.process_uint8(),
+            power=self.process_uint8(),
+            knowledge=self.process_uint8(),
+        )
 
     def read_creature_set(self, quantity) -> list:
         # max_id = 0xFF if self.map_type == MapType.ROE else 0xFFFF
@@ -652,12 +656,7 @@ class MapParser:
         if self.map_type >= MapType.SOD:
             has_custom_primary_skills = self.process_uint8()
             if has_custom_primary_skills:
-                hero['custom_primary_skills'] = {
-                    'attack': self.process_uint8(),
-                    'defence': self.process_uint8(),
-                    'power': self.process_uint8(),
-                    'knowledge': self.process_uint8(),
-                }
+                hero['custom_primary_skills'] = self.read_primary_skills()
 
         self.skip_n_bytes(16)
 
@@ -675,12 +674,7 @@ class MapParser:
         elif mission_type == QuestType.DEFEAT_MONSTER:
             quest['monster_object_id'] = self.process_uint32()
         elif mission_type == QuestType.ACHIEVE_PRIMARY_SKILL_LEVEL:
-            quest['primary_skills'] = {
-                'attack': self.process_uint8(),
-                'defence': self.process_uint8(),
-                'power': self.process_uint8(),
-                'knowledge': self.process_uint8(),
-            }
+            quest['primary_skills'] = self.read_primary_skills()
         elif mission_type == QuestType.BRING_ARTEFACT:
             artifact_quantity = self.process_uint8()
             quest['artifacts'] = [self.process_uint16() for _ in range(artifact_quantity)]
@@ -774,12 +768,7 @@ class MapParser:
                 morale = self.process_int8()
                 luck = self.process_int8()
                 resources = self.read_resources()
-                primary_skills = {
-                    'attack': self.process_uint8(),
-                    'defence': self.process_uint8(),
-                    'power': self.process_uint8(),
-                    'knowledge': self.process_uint8(),
-                }
+                primary_skills = self.read_primary_skills()
                 abilities_quantity = self.process_uint8()
                 abilities = [
                     {
@@ -1012,12 +1001,7 @@ class MapParser:
                 map_object['morale_diff'] = self.process_int8()
                 map_object['luck_diff'] = self.process_int8()
                 map_object['resources'] = self.read_resources()
-                map_object['primary_skills'] = {
-                    'attack': self.process_uint8(),
-                    'defence': self.process_uint8(),
-                    'power': self.process_uint8(),
-                    'knowledge': self.process_uint8(),
-                }
+                map_object['primary_skills'] = self.read_primary_skills()
                 abilities_quantity = self.process_uint8()
                 map_object['abilities'] = [
                     {
