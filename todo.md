@@ -18,7 +18,6 @@
 - (done) `computer_playstyle` — look for matching enum (line 219)
 - Victory condition field — enum + rename to `special_victory_condition` (line 267)
 - `special_loss_condition` — convert to enum (with discriminator) (line 309-...)
-- map_processors.base.MapParser.process_n_bytes_to_mask it is now processing to a binary format, not to a mask
 - (done) Shall we continue? we can't assemble it back if we do? (if creature_id == max_id) (line 560)
 - Primary skills reading — extract to `read_primary_skills()` method (line 645)
 - `mana_diff` — check if `int32` should be unsigned (line 735)
