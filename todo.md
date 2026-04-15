@@ -17,10 +17,6 @@
 #### 1.11.3 `map_processors/translations.py` — cleanup
 - Module-level `# TODO: remove?` — decide whether to keep or remove (line 6)
 
-#### 1.11.3 `map_processors/schemas.py`
-- `artifacts` is typed as `str` — likely blocked artifacts, clarify (line 624)
-
-
 ## Phase 2: JSON → H3M (binary writer)
 
 > Depends on Phase 1 being done — Pydantic models are the interchange format.
@@ -102,6 +98,9 @@
 
 
 ### 6 Further investigations in base.py
+
+see commit 50aef982b430c79f012dc2b371a1f121808073ba for original comments
+
 - `allowed_heroes_info` is typed as `str` — move to separate structure (line 340)
 - Victory condition field — enum + rename to `special_victory_condition` (line 267)
 - `special_loss_condition` — convert to enum (with discriminator) (line 309-...)
@@ -109,3 +108,4 @@
 - `bonus_id` — check if `uint8` is correct for spells (line 917-918)
 - Mine/abandoned mine — analyze strange case;   # not owner for abandoned mine? (line 970)
 - Hidden possibilities to check — investigate and document: # 1. town events occurrence: try strange numbers 8, 9, 10 (line 740)
+- (`map_processors/schemas.py`) `artifacts` is typed as `str` — likely blocked artifacts, clarify (line 624)
