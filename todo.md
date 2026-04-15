@@ -11,12 +11,8 @@
 - `EnumWithContainsCheck` metaclass — delete and just inherit from `IntEnum` (line 15)
 
 #### 1.11.2 `map_processors/base.py` — parsing improvements
-- (done) `placeholder_heroes: [int, ...]` — unclear semantics, investigate (line 354), just an array containing hero_id's for objects of class 'hero_placeholder', seems to be useless
-- (done) `skip_n_bytes()` — alert when skipped bytes are non-empty (line 83)
-- (done) `try/except Exception` — remove or rework broad exception catch; `print(self.map_binary[self._cursor_position : string_end], 'tried into', self.encoding)` (line 108)
-- (done) `computer_playstyle` — look for matching enum (line 219)
-- (done) Shall we continue? we can't assemble it back if we do? (if creature_id == max_id) (line 560)
-- (done) Primary skills reading — extract to `read_primary_skills()` method (line 645)
+
+(done)
 
 #### 1.11.3 `map_processors/translations.py` — cleanup
 - Module-level `# TODO: remove?` — decide whether to keep or remove (line 6)
