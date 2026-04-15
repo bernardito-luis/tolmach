@@ -11,20 +11,12 @@
 - `EnumWithContainsCheck` metaclass — delete and just inherit from `IntEnum` (line 15)
 
 #### 1.11.2 `map_processors/base.py` — parsing improvements
-- `allowed_heroes_info` is typed as `str` — move to separate structure (line 340)
 - (done) `placeholder_heroes: [int, ...]` — unclear semantics, investigate (line 354), just an array containing hero_id's for objects of class 'hero_placeholder', seems to be useless
 - (done) `skip_n_bytes()` — alert when skipped bytes are non-empty (line 83)
 - (done) `try/except Exception` — remove or rework broad exception catch; `print(self.map_binary[self._cursor_position : string_end], 'tried into', self.encoding)` (line 108)
 - (done) `computer_playstyle` — look for matching enum (line 219)
-- Victory condition field — enum + rename to `special_victory_condition` (line 267)
-- `special_loss_condition` — convert to enum (with discriminator) (line 309-...)
 - (done) Shall we continue? we can't assemble it back if we do? (if creature_id == max_id) (line 560)
 - (done) Primary skills reading — extract to `read_primary_skills()` method (line 645)
-- `mana_diff` — check if `int32` should be unsigned (line 735)
-- `bonus_type` — convert to enum (line 889)
-- `bonus_id` — check if `uint8` is correct for spells (line 890-891)
-- Mine/abandoned mine — analyze strange case;   # not owner for abandoned mine? (line 946)
-- Hidden possibilities to check — investigate and document: # 1. town events occurrence: try strange numbers 8, 9, 10 (line 1116)
 
 #### 1.11.3 `map_processors/translations.py` — cleanup
 - Module-level `# TODO: remove?` — decide whether to keep or remove (line 6)
@@ -111,3 +103,13 @@
 - A Matter of Honor.h3m
 - A Hard Journey.h3m (wrong coding)
 - Taiji.h3m (wrong coding)
+
+
+### 6 Further investigations in base.py
+- `allowed_heroes_info` is typed as `str` — move to separate structure (line 340)
+- Victory condition field — enum + rename to `special_victory_condition` (line 267)
+- `special_loss_condition` — convert to enum (with discriminator) (line 309-...)
+- `bonus_type` — convert to enum (line 916)
+- `bonus_id` — check if `uint8` is correct for spells (line 917-918)
+- Mine/abandoned mine — analyze strange case;   # not owner for abandoned mine? (line 970)
+- Hidden possibilities to check — investigate and document: # 1. town events occurrence: try strange numbers 8, 9, 10 (line 740)
