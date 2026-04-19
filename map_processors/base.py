@@ -10,6 +10,7 @@ import logging
 import pathlib
 from functools import cached_property
 
+from map_processors.constants import PLAYER_COLORS
 from map_processors.custom_types import PrimarySkills
 from map_processors.encoding import detect_encoding, detect_map_encoding
 from map_processors.enums import (
@@ -244,17 +245,17 @@ class MapParser:
     def read_players_attributes(self):
         self.data['players_attributes'] = []
 
-        for player_color in ('red', 'blue', 'brown', 'green', 'orange', 'purple', 'teal', 'pink'):
+        for player_color in PLAYER_COLORS:
             player_info = {}
             player_info['can_human_play'] = bool(self.process_uint8())
             player_info['can_computer_play'] = bool(self.process_uint8())
             if not player_info['can_human_play'] and not player_info['can_computer_play']:
                 if self.map_type >= MapType.SOD:
-                    self.skip_n_bytes(13)
+                    player_info['inactive_unknown'] = self.process_n_bytes_to_base64(13)
                 elif self.map_type == MapType.AB:
-                    self.skip_n_bytes(12)
+                    player_info['inactive_unknown'] = self.process_n_bytes_to_base64(12)
                 elif self.map_type == MapType.ROE:
-                    self.skip_n_bytes(6)
+                    player_info['inactive_unknown'] = self.process_n_bytes_to_base64(6)
                 self.data['players_attributes'].append(player_info)
                 continue
 
@@ -289,9 +290,9 @@ class MapParser:
                 player_info['main_custom_hero_name'] = self.process_string()
 
             if self.map_type != MapType.ROE:
-                self.skip_n_bytes(1)  # unknown byte
+                player_info['hero_section_prefix'] = self.process_n_bytes_to_base64(1)
                 player_info['hero_count'] = self.process_uint8()
-                self.skip_n_bytes(3)
+                player_info['hero_section_suffix'] = self.process_n_bytes_to_base64(3)
                 player_info['heroes'] = []
                 for _ in range(player_info['hero_count']):
                     player_info['heroes'].append(
@@ -315,11 +316,13 @@ class MapParser:
             if self.data['victory']['special_victory_condition'] == 0:
                 self.data['victory']['acquire_artifact_code'] = self.process_uint8()
                 if self.map_type != MapType.ROE:
-                    self.skip_n_bytes(1)
+                    self.data['victory']['acquire_artifact_unknown'] = (
+                        self.process_n_bytes_to_base64(1)
+                    )
             elif self.data['victory']['special_victory_condition'] == 1:
                 self.data['victory']['unit_code'] = self.process_uint8()
                 if self.map_type != MapType.ROE:
-                    self.skip_n_bytes(1)
+                    self.data['victory']['unit_unknown'] = self.process_n_bytes_to_base64(1)
                 self.data['victory']['unit_quantity'] = self.process_uint32()
             elif self.data['victory']['special_victory_condition'] == 2:
                 self.data['victory']['resource_code'] = self.process_uint8()
@@ -398,7 +401,7 @@ class MapParser:
                     }
                 )
 
-        self.skip_n_bytes(31)  # unknown bytes
+        self.data['heroes_info_unknown'] = self.process_n_bytes_to_base64(31)
 
     def read_artifacts(self):
         if self.map_type == MapType.AB:
@@ -575,15 +578,16 @@ class MapParser:
         has_message = self.process_uint8()
         message = None
         guards = None
+        message_unknown = None
         if has_message:
             message = self.process_string()
 
             has_guards = self.process_uint8()
             if has_guards:
                 guards = self.read_creature_set(7)
-            self.skip_n_bytes(4)
+            message_unknown = self.process_n_bytes_to_base64(4)
 
-        return message, guards
+        return message, guards, message_unknown
 
     def read_resources(self) -> dict[str, int]:
         return {
@@ -658,7 +662,7 @@ class MapParser:
             if has_custom_primary_skills:
                 hero['custom_primary_skills'] = self.read_primary_skills()
 
-        self.skip_n_bytes(16)
+        hero['unknown_tail'] = self.process_n_bytes_to_base64(16)
 
         return hero
 
@@ -747,7 +751,7 @@ class MapParser:
             )
         if self.map_type >= MapType.SOD:
             town['alignment'] = self.process_uint8()
-        self.skip_n_bytes(3)
+        town['unknown_tail'] = self.process_n_bytes_to_base64(3)
 
         return town
 
@@ -757,12 +761,12 @@ class MapParser:
         for _ in range(objects_quantity):
             object_coordinates = self.process_coordinates()
             object_number = self.process_uint32()
-            self.skip_n_bytes(5)  # unknown
+            pre_body_unknown = self.process_n_bytes_to_base64(5)
             object_class = self.data['def'][object_number]['object_class']
             object_subclass = self.data['def'][object_number]['object_number']
             map_object = {}
             if object_class == ObjectType.EVENT.value:
-                message, guards = self.read_message_and_guards()
+                message, guards, message_unknown = self.read_message_and_guards()
                 experience = self.process_uint32()
                 mana_diff = self.process_int32()
                 morale = self.process_int8()
@@ -787,16 +791,17 @@ class MapParser:
                 creatures_quantity = self.process_uint8()
                 creatures = self.read_creature_set(creatures_quantity)
 
-                self.skip_n_bytes(8)
+                unknown_mid = self.process_n_bytes_to_base64(8)
 
                 available_for_color = self.process_n_bytes_to_mask(1)
                 can_computer_activate = bool(self.process_uint8())
                 remove_after_visit = bool(self.process_uint8())
 
-                self.skip_n_bytes(4)
+                unknown_tail = self.process_n_bytes_to_base64(4)
                 map_object = {
                     'message': message,
                     'guards': guards,
+                    'message_unknown': message_unknown,
                     'experience': experience,
                     'mana_diff': mana_diff,
                     'morale': morale,
@@ -810,11 +815,15 @@ class MapParser:
                     'available_for_color': available_for_color,
                     'can_computer_activate': can_computer_activate,
                     'remove_after_visit': remove_after_visit,
+                    'unknown_mid': unknown_mid,
+                    'unknown_tail': unknown_tail,
                 }
 
             elif object_class in (ObjectType.SIGN.value, ObjectType.OCEAN_BOTTLE.value):
-                map_object = {'message': self.process_string()}
-                self.skip_n_bytes(4)
+                map_object = {
+                    'message': self.process_string(),
+                    'message_tail': self.process_n_bytes_to_base64(4),
+                }
 
             elif object_class in (
                 ObjectType.HERO.value,
@@ -854,9 +863,8 @@ class MapParser:
 
                 monster['mood'] = self.process_uint8()
                 monster['not_growing'] = bool(self.process_uint8())
+                monster['unknown_tail'] = self.process_n_bytes_to_base64(2)
                 map_object = monster
-
-                self.skip_n_bytes(2)
 
             elif object_class == ObjectType.SEER_HUT.value:
                 quest = dict()
@@ -902,10 +910,10 @@ class MapParser:
                     reward['type'] = reward['type'].name.lower()
                     quest['reward'] = reward
 
-                    self.skip_n_bytes(2)
+                    quest['unknown_tail'] = self.process_n_bytes_to_base64(2)
 
                 else:
-                    self.skip_n_bytes(3)
+                    quest['unknown_tail'] = self.process_n_bytes_to_base64(3)
                 map_object = quest
 
             elif object_class == ObjectType.WITCH_HUT.value:
@@ -915,27 +923,31 @@ class MapParser:
             elif object_class == ObjectType.SCHOLAR.value:
                 map_object['bonus_type'] = self.process_uint8()
                 map_object['bonus_id'] = self.process_uint8()
-                self.skip_n_bytes(6)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(6)
 
             elif object_class in (
                 ObjectType.GARRISON_HORIZONTAL.value,
                 ObjectType.GARRISON_VERTICAL.value,
             ):
                 map_object['owner'] = ColorEnum(self.process_uint8()).name.lower()
-                self.skip_n_bytes(3)
+                map_object['unknown_mid'] = self.process_n_bytes_to_base64(3)
                 map_object['creatures'] = self.read_creature_set(7)
                 if self.map_type >= MapType.AB:
                     map_object['is_removable'] = self.process_uint8()
                 else:
                     map_object['is_removable'] = 1
-                self.skip_n_bytes(8)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(8)
 
             elif object_class == ObjectType.SPELL_SCROLL.value:
-                map_object['message'], map_object['guards'] = self.read_message_and_guards()
+                (map_object['message'], map_object['guards'], map_object['message_unknown']) = (
+                    self.read_message_and_guards()
+                )
                 map_object['spell_id'] = self.process_uint32()
 
             elif object_class == ObjectType.ARTIFACT.value:
-                map_object['message'], map_object['guards'] = self.read_message_and_guards()
+                (map_object['message'], map_object['guards'], map_object['message_unknown']) = (
+                    self.read_message_and_guards()
+                )
                 map_object['artifact_id'] = self.data['def'][object_number]['object_number']
 
             elif object_class in (
@@ -945,7 +957,9 @@ class MapParser:
                 ObjectType.RANDOM_MAJOR_ART.value,
                 ObjectType.RANDOM_RELIC_ART.value,
             ):
-                map_object['message'], map_object['guards'] = self.read_message_and_guards()
+                (map_object['message'], map_object['guards'], map_object['message_unknown']) = (
+                    self.read_message_and_guards()
+                )
                 if object_class == ObjectType.RANDOM_TREASURE_ART.value:
                     map_object['level'] = '1'
                 if object_class == ObjectType.RANDOM_MINOR_ART.value:
@@ -958,11 +972,13 @@ class MapParser:
                     map_object['level'] = 'any'
 
             elif object_class in (ObjectType.RESOURCE.value, ObjectType.RANDOM_RESOURCE.value):
-                map_object['message'], map_object['guards'] = self.read_message_and_guards()
+                (map_object['message'], map_object['guards'], map_object['message_unknown']) = (
+                    self.read_message_and_guards()
+                )
                 map_object['quantity'] = self.process_uint32()
                 if object_class == ObjectType.RESOURCE.value:
                     map_object['resource_type'] = ResourceType(object_subclass).name.lower()
-                self.skip_n_bytes(4)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(4)
 
             elif object_class in (ObjectType.TOWN.value, ObjectType.RANDOM_TOWN.value):
                 map_object = self.read_town()
@@ -971,11 +987,11 @@ class MapParser:
                 object_class == ObjectType.MINE.value and object_subclass == 7
             ):
                 map_object['possible_resources'] = self.process_n_bytes_to_mask(1)
-                self.skip_n_bytes(3)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(3)
 
             elif object_class == ObjectType.MINE.value:
                 map_object['owner'] = ColorEnum(self.process_uint8()).name.lower()
-                self.skip_n_bytes(3)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(3)
 
             elif object_class in (
                 ObjectType.CREATURE_GENERATOR1.value,
@@ -984,7 +1000,7 @@ class MapParser:
                 ObjectType.CREATURE_GENERATOR4.value,
             ):
                 map_object['owner'] = ColorEnum(self.process_uint8()).name.lower()
-                self.skip_n_bytes(3)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(3)
 
             elif object_class in (
                 ObjectType.SHRINE_OF_MAGIC_INCANTATION.value,
@@ -992,10 +1008,12 @@ class MapParser:
                 ObjectType.SHRINE_OF_MAGIC_THOUGHT.value,
             ):
                 map_object['spell_id'] = self.process_uint8()
-                self.skip_n_bytes(3)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(3)
 
             elif object_class == ObjectType.PANDORA_BOX.value:
-                map_object['message'], map_object['guards'] = self.read_message_and_guards()
+                (map_object['message'], map_object['guards'], map_object['message_unknown']) = (
+                    self.read_message_and_guards()
+                )
                 map_object['experience'] = self.process_uint32()
                 map_object['mana_diff'] = self.process_int32()
                 map_object['morale_diff'] = self.process_int8()
@@ -1023,7 +1041,7 @@ class MapParser:
                 map_object['spells'] = [self.process_uint8() for _ in range(spells_quantity)]
                 creatures_quantity = self.process_uint8()
                 map_object['creatures'] = self.read_creature_set(creatures_quantity)
-                self.skip_n_bytes(8)
+                map_object['unknown_tail'] = self.process_n_bytes_to_base64(8)
 
             elif object_class == ObjectType.GRAIL.value:
                 map_object['radius'] = self.process_uint32()
@@ -1070,7 +1088,9 @@ class MapParser:
                         else str(object_class)
                     ),
                     'object_subclass': object_subclass,
+                    'object_number': object_number,
                     'coordinates': object_coordinates,
+                    'pre_body_unknown': pre_body_unknown,
                 }
             )
             self.data['objects'].append(map_object)
@@ -1123,5 +1143,9 @@ class MapParser:
                 f'Failed to parse objects in {self.filename} at offset {self._cursor_position}'
             ) from e
         self.read_events()
+
+        remaining = len(self.map_binary) - self._cursor_position
+        if remaining > 0:
+            self.data['trailing_unknown'] = self.process_n_bytes_to_base64(remaining)
 
         return GameMapStructure.model_validate(self.data)

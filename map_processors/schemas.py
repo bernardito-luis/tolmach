@@ -102,6 +102,9 @@ class PlayerAttributes(BaseModel):
     main_custom_hero_name: Optional[Annotated[str, Translatable()]] = None
     hero_count: Optional[int] = None
     heroes: Optional[List[Hero]] = None
+    inactive_unknown: Optional[str] = None
+    hero_section_prefix: Optional[str] = None
+    hero_section_suffix: Optional[str] = None
 
 
 # Victory and Loss Conditions
@@ -123,6 +126,8 @@ class Victory(BaseModel):
     creature_coordinates: Optional[Tuple[int, int, int]] = None
     bring_artifact_code: Optional[int] = None
     bring_artifact_town_coordinates: Optional[Tuple[int, int, int]] = None
+    acquire_artifact_unknown: Optional[str] = None
+    unit_unknown: Optional[str] = None
 
 
 class Loss(BaseModel):
@@ -155,8 +160,8 @@ class ConfiguredHero(BaseModel):
 
 class PredefinedHero(BaseModel):
     experience: Optional[int] = None
-    abilities: List[Ability] = []
-    artifacts: Dict[int, int] = {}
+    abilities: Optional[List[Ability]] = None
+    artifacts: Optional[Dict[int, int]] = None
     biography: Optional[Annotated[str, Translatable()]] = None
     sex: int
     spells: Optional[str] = None
@@ -215,13 +220,16 @@ class DefFile(BaseModel):
 class MapObject(BaseModel):
     object_class: str
     object_subclass: int
+    object_number: int
     coordinates: Tuple[int, int, int]
+    pre_body_unknown: Optional[str] = None
 
 
 class MapEvent(MapObject):
     object_class: Literal['event']
     message: Annotated[str, Translatable()] | None = None
     guards: List[Guard] | None = None
+    message_unknown: Optional[str] = None
     experience: int
     mana_diff: int
     morale: int
@@ -235,16 +243,20 @@ class MapEvent(MapObject):
     available_for_color: str
     can_computer_activate: bool
     remove_after_visit: bool
+    unknown_mid: Optional[str] = None
+    unknown_tail: Optional[str] = None
 
 
 class MapSign(MapObject):
     object_class: Literal['sign']
     message: Annotated[str, Translatable()]
+    message_tail: Optional[str] = None
 
 
 class MapOceanBottle(MapObject):
     object_class: Literal['ocean_bottle']
     message: Annotated[str, Translatable()]
+    message_tail: Optional[str] = None
 
 
 class MapHero(MapObject):
@@ -264,6 +276,7 @@ class MapHero(MapObject):
     sex: int | None = None
     custom_spells: str | None = None
     custom_primary_skills: PrimarySkills | None = None
+    unknown_tail: Optional[str] = None
 
 
 class MapMonster(MapObject):
@@ -286,6 +299,7 @@ class MapMonster(MapObject):
     artifact_id: int | None = None
     mood: int
     not_growing: bool
+    unknown_tail: Optional[str] = None
 
 
 class Reward(BaseModel):
@@ -322,6 +336,7 @@ class MapSeerHut(MapObject):
     next_visit_text: Annotated[str, Translatable()] | None = None
     completed_text: Annotated[str, Translatable()] | None = None
     reward: Reward | None = None
+    unknown_tail: Optional[str] = None
 
 
 class MapWitchHut(MapObject):
@@ -333,6 +348,7 @@ class MapScholar(MapObject):
     object_class: Literal['scholar']
     bonus_type: int
     bonus_id: int
+    unknown_tail: Optional[str] = None
 
 
 class MapGarrison(MapObject):
@@ -340,11 +356,14 @@ class MapGarrison(MapObject):
     owner: str
     creatures: List[Creature] = []
     is_removable: int
+    unknown_mid: Optional[str] = None
+    unknown_tail: Optional[str] = None
 
 
 class MessageAndGuards(MapObject):
     message: Annotated[str, Translatable()] | None = None
     guards: List[Guard] | None = None
+    message_unknown: Optional[str] = None
 
 
 class MapSpellScroll(MessageAndGuards):
@@ -372,11 +391,13 @@ class MapResource(MessageAndGuards):
     object_class: Literal['resource']
     resource_type: str
     quantity: int
+    unknown_tail: Optional[str] = None
 
 
 class MapRandomResource(MessageAndGuards):
     object_class: Literal['random_resource']
     quantity: int
+    unknown_tail: Optional[str] = None
 
 
 class TownEvent(BaseModel):
@@ -408,12 +429,14 @@ class MapTown(MapObject):
     possible_spells: str
     events: List[TownEvent] = []
     alignment: int | None = None
+    unknown_tail: Optional[str] = None
 
 
 class MapMineAbandonedMine(MapObject):
     object_class: Literal['mine', 'abandoned_mine']
     possible_resources: str | None = None
     owner: str | None = None
+    unknown_tail: Optional[str] = None
 
 
 class MapCreatureGenerator(MapObject):
@@ -421,6 +444,7 @@ class MapCreatureGenerator(MapObject):
         'creature_generator1', 'creature_generator2', 'creature_generator3', 'creature_generator4'
     ]
     owner: str
+    unknown_tail: Optional[str] = None
 
 
 class MapShrineOfMagic(MapObject):
@@ -428,12 +452,14 @@ class MapShrineOfMagic(MapObject):
         'shrine_of_magic_incantation', 'shrine_of_magic_gesture', 'shrine_of_magic_thought'
     ]
     spell_id: int
+    unknown_tail: Optional[str] = None
 
 
 class MapPandoraBox(MapObject):
     object_class: Literal['pandora_box']
     message: Annotated[str, Translatable()] | None = None
     guards: List[Guard] | None = None
+    message_unknown: Optional[str] = None
     experience: int
     mana_diff: int
     morale_diff: int
@@ -444,6 +470,7 @@ class MapPandoraBox(MapObject):
     artifacts: List[int]
     spells: List[int]
     creatures: List[Creature]
+    unknown_tail: Optional[str] = None
 
 
 class MapGrail(MapObject):
@@ -554,7 +581,7 @@ AllMapObjectSchemas = Union[
 ]
 
 
-_OBJECT_CLASS_TO_TAG = {
+OBJECT_CLASS_TO_TAG = {
     'event': 'event',
     'sign': 'sign',
     'ocean_bottle': 'ocean_bottle',
@@ -613,7 +640,7 @@ def map_object_discriminator(value) -> str:
     else:
         object_class = getattr(value, 'object_class', None)
 
-    return _OBJECT_CLASS_TO_TAG.get(object_class, 'general_map_object')
+    return OBJECT_CLASS_TO_TAG.get(object_class, 'general_map_object')
 
 
 # Main Structure Schema
@@ -626,6 +653,7 @@ class GameMapStructure(BaseModel):
     allowed_heroes_info: str
     placeholder_heroes: List[int] = []
     configured_heroes: List[ConfiguredHero] = []
+    heroes_info_unknown: Optional[str] = None
     artifacts: Optional[str] = None
     allowed_spells_bytes: Optional[str] = None
     allowed_hero_abilities_bytes: Optional[str] = None
@@ -637,6 +665,7 @@ class GameMapStructure(BaseModel):
         Annotated[AllMapObjectSchemas, Field(discriminator=Discriminator(map_object_discriminator))]
     ] = []
     events: List[MapTimedEvent] = []
+    trailing_unknown: Optional[str] = None
 
     model_config = ConfigDict(populate_by_name=True)
 
